@@ -2,37 +2,43 @@
 export interface DiyTools {
     diyTools: DiyTool[]
 }
+//export type DiyTools = DiyTool[];
 
 export enum DiyToolCategory
 {
-    PONCEUSE,
-    TAILLE_HAIE,
-    PERCEUSE
+    SANDER,         // PONCEUSE
+    HEDGE_TRIMMER,  // TAILLE_HAIE
+    DRILL           // PERCEUSE
 }
 
 export enum DiyToolState
 {
-    NEUF,
-    BON_ETAT,
-    VIEUX,
-    MAUVAIS_ETAT,
-    TRES_MAUVAIS_ETAT
+    NEW,
+    GOOD_STATE,
+    OLD,
+    BAD_STATE,
+    VERY_BAD_STATE
 }
 
 export interface DiyTool
 {
+    // For listbox component
+    label: string;
+
     generalInfos: DiyToolGeneralInformations;
     stateInfos: DiyToolStateInformations;
     booked: boolean;
-    bookingInfos?: DiyToolBookingInformations;
+    currentBookingInfos?: DiyToolBookingInformations;
+    bookingHistory?: DiyToolBookingInformations[];
 }
 
 export interface DiyToolGeneralInformations
 {
-    label: string;
     tradeMark: string;
     category: DiyToolCategory;
     description: string;
+    instructionsForUse?: string[];
+    //instructionVideo : 
     place: string;
 }
 
@@ -45,8 +51,8 @@ export interface DiyToolStateInformations
 
 export interface DiyToolBookingInformations
 {
-    bookerFirstName: string;
-    bookerLastName: string;
-    phoneNb: string;
+    currentBookerFirstName: string;
+    currentBookerLastName: string;
+    currentPhoneNb: string;
     backDate: Date;
 }

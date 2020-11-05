@@ -1,52 +1,71 @@
 import './BookYourDiyTools.css';
 
 import React from 'react';
-import { DiyTools, DiyToolCategory, DiyToolState } from './dataModel';
-import { ListBox } from 'primereact/listbox';
-//import PrimereactStyle from 'primereact/primereact.internal.stylelinks';
+import { DiyTools, DiyTool } from './dataModel';
+import { ListBox } from '@bit/primefaces.primereact.listbox';
+import { PrimereactStyle } from '@bit/primefaces.primereact.internal.stylelinks';
+import { Panel } from '@bit/primefaces.primereact.panel';
 
-export class BookYourDiyTools extends React.Component <{}> {
+export interface IProps
+{
+  diyTools: DiyTools;
+}
 
-  diyTools: DiyTools | undefined;
+interface IState
+{
+  selectedDiyTool: DiyTool;
+}
 
-  constructor()
+export class BookYourDiyTools extends React.Component<IProps, IState> {
+
+  constructor(props: IProps)
   {
-    super({});
+    super(props);
 
-    this.diyTools = {
-			diyTools: [
-        { booked: false,
-           generalInfos: { label:'Taille haie 1', description: 'Taille haie nul à chier', place: 'C1', category: DiyToolCategory.TAILLE_HAIE, tradeMark: 'Kubota' }, 
-           stateInfos: { state: DiyToolState.TRES_MAUVAIS_ETAT, isBeingRepaired: false, isBroken: true }
-        },
-        { booked: false,
-          generalInfos: { label:'Taille haie 2', description: 'Taille haie super', place: 'C2', category: DiyToolCategory.TAILLE_HAIE, tradeMark: 'Black & Decker' }, 
-          stateInfos: { state: DiyToolState.BON_ETAT, isBeingRepaired: false, isBroken: false }
-       }
-      ]
+    this.state = { 
+      selectedDiyTool: this.props.diyTools.diyTools[0] 
     };
+  }
 
-    this.state = {
-      diyTools: [ {
-        booked: false,
-        generalInfos: { label:'Taille haie 2', description: 'Taille haie super', place: 'C2', category: DiyToolCategory.TAILLE_HAIE, tradeMark: 'Black & Decker' }, 
-        stateInfos: { state: DiyToolState.BON_ETAT, isBeingRepaired: false, isBroken: false }
-       }
-      ]
-    };
-    }
+  render()
+  {        
+    return (
+      <div>
+        <div className='dialog'>
 
-    render()
-    {   
-      return (
-        <div className="BookYourDiyTools">
-        <ListBox
-            value={this.diyTools}
-          //  options={this.diyTools}
-            onChange={e => this.setState({ diyTools: e.value })}
-            optionLabel='label'
-          />
+          { /* Primereact style, use CSS for display */ }
+          <PrimereactStyle/>
+
+          { /* DiyTools list */ }
+          <div className="diytool-list">
+            <label htmlFor="label">Matériel :</label><br/>
+            <ListBox
+              key = { this.state.selectedDiyTool.label }
+              value = { this.state.selectedDiyTool }
+              options={ this.props.diyTools.diyTools }
+              onChange={ (e) => {
+              //  console.log('value:' + e.originalEvent.type);
+                //if (e.originalEvent.type === ' click')
+                {
+                 // console.log('id:' + e.target.id);
+                  this.setState({ selectedDiyTool:e.value } );
+                  console.log('value:' + JSON.stringify(this.state.selectedDiyTool));
+                }
+              }
+            }
+            />
+          </div>
+
+          <br/><br/><hr/>
+          <Panel header="Header">
+            { /* DiyTool label */ }
+            <div className="diytool-label">
+              <b><label htmlFor="label">{ this.state.selectedDiyTool.label }</label></b><br/>
+              <label htmlFor="label">Marque: { this.state.selectedDiyTool.generalInfos.tradeMark }</label>
+            </div>
+          </Panel>
         </div>
-      );
-    }
+      </div>
+    );
+  }
 }
