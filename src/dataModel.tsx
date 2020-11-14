@@ -1,23 +1,23 @@
+import { getEnabledCategories } from "trace_events";
 
 export interface DiyTools {
     diyTools: DiyTool[]
 }
-//export type DiyTools = DiyTool[];
 
 export enum DiyToolCategory
 {
-    SANDER,         // PONCEUSE
-    HEDGE_TRIMMER,  // TAILLE_HAIE
-    DRILL           // PERCEUSE
+    SANDER='Ponceuse',            // PONCEUSE
+    HEDGE_TRIMMER='Taille haie',  // TAILLE_HAIE
+    DRILL='Perceuse'              // PERCEUSE
 }
 
 export enum DiyToolState
 {
-    NEW,
-    GOOD_STATE,
-    OLD,
-    BAD_STATE,
-    VERY_BAD_STATE
+    NEW='New',
+    GOOD_STATE='Good state',
+    OLD='Old',
+    BAD_STATE='Bad state',
+    VERY_BAD_STATE='Very bad state'
 }
 
 export interface DiyTool
@@ -37,7 +37,7 @@ export interface DiyToolGeneralInformations
     tradeMark: string;
     category: DiyToolCategory;
     description: string;
-    instructionsForUse?: string[];
+    instructionsForUse?: string;
     //instructionVideo : 
     place: string;
 }
@@ -53,6 +53,6 @@ export interface DiyToolBookingInformations
 {
     currentBookerFirstName: string;
     currentBookerLastName: string;
-    currentPhoneNb: string;
-    backDate: Date;
+    currentBookerPhoneNumber: string;
+    currentBookerBackDate: Date;
 }
