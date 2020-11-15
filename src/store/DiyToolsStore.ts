@@ -1,4 +1,4 @@
-import { DiyToolCategory, DiyTools, DiyToolState } from './dataModel';
+import { DiyToolCategory, DiyTools, DiyToolState } from '../model/dataModel';
 
 /**
  * DiyToolsStore class

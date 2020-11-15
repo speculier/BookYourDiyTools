@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import * as serviceWorker from './serviceWorker';
 import { BookYourDiyTools } from './BookYourDiyTools';
-import { DiyToolsStore } from './DiyToolsStore';
+import { DiyToolsStore } from './store/DiyToolsStore';
 
 let diyStore = new DiyToolsStore();
 var allTools = diyStore.getAllTools();

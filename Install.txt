@@ -1,0 +1,21 @@
+- Télécharger npm et l'installer
+- Télécharger VsCode et l'installer
+- Télécharger git pour Windows et l'installer
+- Dans vscode, installer github, paramèter l'extension (chemin vers git.exe, ...) et faire
+  git config --global user.email "speculier@gmail.com"
+  git config --global user.name "speculier"
+  git push --set-upstream BookYourDiyTools master
+- Dans vscode, installer live share
+- Installer typescript avec npm : 
+		npm i -g typescript
+		tsc --version
+
+- Installer primereact : 
+(npm i primereact --save)
+(npm config set @bit:registry https://node.bit.dev)
+npm i @bit/primefaces.primereact.internal.stylelinks ou npm install @types/bit__primefaces.primereact.internal.stylelinks
+npm i @bit/primefaces.primereact.listbox
+npm i @bit/primefaces.primereact.menu
+npm i @bit/primefaces.primereact.dataview
+npm i classnames --save
+
