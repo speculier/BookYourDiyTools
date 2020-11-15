@@ -12,32 +12,32 @@ import { DiyToolsList } from './DiyToolsList';
  * Props for DiyBookings class
  */
 interface IPropsDiyBookings { }
- 
- /**
-  * States for DiyBookings class
-  */
- interface IStateDiyBookings {
+
+/**
+ * States for DiyBookings class
+ */
+interface IStateDiyBookings {
     selectedDiyTool: DiyTool;
-    dataViewBookingHistoryCurrentBooking: DiyToolBookingInformations | undefined;
+    dataViewBookingHistoryCurrentBooking?: DiyToolBookingInformations;
     dataViewBookingHistoryLayout: string;
     dataViewBookingHistorySortKey: any;
     dataViewBookingHistorySortOrder: any;
     dataViewBookingHistorySortField: any;
     onDataViewBookingHistoryOnSortChange: ( event: any ) => void;
     onDataViewBookingHistoryItemTemplateDisplay: ( tool: any, layout: 'list' | 'grid' ) => JSX.Element;
- }
- 
- /**
-  * DiyBookings class
-  */
- export class DiyBookings extends React.Component<IPropsDiyBookings, IStateDiyBookings> {
+}
+
+/**
+ * DiyBookings class
+*/
+export class DiyBookings extends React.Component<IPropsDiyBookings, IStateDiyBookings> {
      
     private diyStore:DiyToolsStore = new DiyToolsStore();
     private diyTools: DiyTools;
     private firstSelectedBooker:number = 0;
     private dataViewBookingHistoryMaxNumberOfToolsPerPage: number=10;
     private defaultTemplateDisplay:string = 'list';
-    private firstSelectedTool:number = 4;
+    private firstSelectedTool:number = 0;
 
     /**
      * constructor
@@ -191,18 +191,18 @@ interface IPropsDiyBookings { }
         );
     }
 
-      /**
-   * setSelectedTool
-   * @param selectedTool 
-   */
-  setSelectedTool = ( selectedTool: DiyTool ) => {
-    console.log( 'Bookings:' , JSON.stringify(selectedTool) );
-  }
+    /**
+     * setSelectedTool
+     * @param selectedTool 
+     */
+    setSelectedTool = ( selectedTool: DiyTool ) => {
+        console.log( 'Bookings:' , JSON.stringify(selectedTool) );
+    }
 
     /**
      * render method
      */
-     render = (): JSX.Element => { 
+    render = (): JSX.Element => { 
         const dataViewBookingHistoryHeader = this.renderBookingHistoryHeader();
 
         return (
@@ -211,12 +211,12 @@ interface IPropsDiyBookings { }
                 <DiyToolsList
                     showInformations={false}
                     canChangeListContainer={false}
-                    firstSelectedTool= {0}
-                    onToolChanged= { ( selectedTool: DiyTool ) => { this.setSelectedTool( selectedTool ); } }
+                    firstSelectedTool= { this.firstSelectedTool}
+                    onToolChanged= { ( selectedTool: DiyTool ) => { this.setSelectedTool( selectedTool ); this.setState( { selectedDiyTool: selectedTool } ); } }
                 />
                 
                 <DataView 
-                    value={ this.diyTools.diyTools[this.firstSelectedTool].bookingHistory } 
+                    value={ this.state.selectedDiyTool.bookingHistory } 
                     layout={ this.state.dataViewBookingHistoryLayout } 
                     header={ dataViewBookingHistoryHeader }
                     itemTemplate={ this.dataViewBookingHistoryItemTemplateDisplay } 
