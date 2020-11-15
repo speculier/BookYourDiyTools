@@ -2,10 +2,11 @@
 import { Panel } from '@bit/primefaces.primereact.panel';
 import React from 'react';
 
-import { DiyTools, DiyToolBookingInformations } from '../model/dataModel';
+import { DiyTools, DiyToolBookingInformations, DiyTool } from '../model/dataModel';
 import { DiyToolsStore } from '../store/DiyToolsStore';
 import { Dropdown } from '@bit/primefaces.primereact.dropdown';
 import { DataView, DataViewLayoutOptions } from '@bit/primefaces.primereact.dataview';
+import { DiyToolsList } from './DiyToolsList';
 
 /**
  * Props for DiyBookings class
@@ -16,6 +17,7 @@ interface IPropsDiyBookings { }
   * States for DiyBookings class
   */
  interface IStateDiyBookings {
+    selectedDiyTool: DiyTool;
     dataViewBookingHistoryCurrentBooking: DiyToolBookingInformations | undefined;
     dataViewBookingHistoryLayout: string;
     dataViewBookingHistorySortKey: any;
@@ -30,12 +32,12 @@ interface IPropsDiyBookings { }
   */
  export class DiyBookings extends React.Component<IPropsDiyBookings, IStateDiyBookings> {
      
-    private  diyStore:DiyToolsStore = new DiyToolsStore();
+    private diyStore:DiyToolsStore = new DiyToolsStore();
     private diyTools: DiyTools;
     private firstSelectedBooker:number = 0;
     private dataViewBookingHistoryMaxNumberOfToolsPerPage: number=10;
     private defaultTemplateDisplay:string = 'list';
-    private firstSelectedTool:number = 0;
+    private firstSelectedTool:number = 4;
 
     /**
      * constructor
@@ -51,13 +53,16 @@ interface IPropsDiyBookings { }
 
         // States
         this.state = { 
-        dataViewBookingHistoryLayout: this.defaultTemplateDisplay,
-        dataViewBookingHistorySortKey: null,
-        dataViewBookingHistorySortOrder: null,
-        dataViewBookingHistorySortField: null,
-        dataViewBookingHistoryCurrentBooking: typeof this.diyTools.diyTools[this.firstSelectedTool].currentBookingInfos === undefined ? undefined : this.diyTools.diyTools[this.firstSelectedTool].currentBookingInfos,
-        onDataViewBookingHistoryOnSortChange: this.dataViewBookingHistoryOnSortChange,
-        onDataViewBookingHistoryItemTemplateDisplay: this.dataViewBookingHistoryItemTemplateDisplay
+            // Selected tool in the main list
+            selectedDiyTool: this.diyTools.diyTools[this.firstSelectedTool],
+
+            dataViewBookingHistoryLayout: this.defaultTemplateDisplay,
+            dataViewBookingHistorySortKey: null,
+            dataViewBookingHistorySortOrder: null,
+            dataViewBookingHistorySortField: null,
+            dataViewBookingHistoryCurrentBooking: typeof this.diyTools.diyTools[this.firstSelectedTool].currentBookingInfos === undefined ? undefined : this.diyTools.diyTools[this.firstSelectedTool].currentBookingInfos,
+            onDataViewBookingHistoryOnSortChange: this.dataViewBookingHistoryOnSortChange,
+            onDataViewBookingHistoryItemTemplateDisplay: this.dataViewBookingHistoryItemTemplateDisplay
         };
     }
 
@@ -154,7 +159,7 @@ interface IPropsDiyBookings { }
 
         return (<React.Fragment></React.Fragment>);
     }
-  
+
     /**
      * renderBookingHistoryHeader
      */
@@ -185,23 +190,42 @@ interface IPropsDiyBookings { }
             </div>
         );
     }
-     
-     /**
-      * render method
-      */
+
+      /**
+   * setSelectedTool
+   * @param selectedTool 
+   */
+  setSelectedTool = ( selectedTool: DiyTool ) => {
+    console.log( 'Bookings:' , JSON.stringify(selectedTool) );
+  }
+
+    /**
+     * render method
+     */
      render = (): JSX.Element => { 
         const dataViewBookingHistoryHeader = this.renderBookingHistoryHeader();
 
-        return (<DataView 
-            value={ this.diyTools.diyTools[4].bookingHistory } 
-            layout={ this.state.dataViewBookingHistoryLayout } 
-            header={ dataViewBookingHistoryHeader }
-            itemTemplate={ this.dataViewBookingHistoryItemTemplateDisplay } 
-            paginator 
-            rows= { 9}
-            sortOrder={ this.state.dataViewBookingHistorySortOrder }
-             sortField={ this.state.dataViewBookingHistorySortField }
-        />
+        return (
+            <div className='bookings'>
+                { /* DiyBookings list */ }
+                <DiyToolsList
+                    showInformations={false}
+                    canChangeListContainer={false}
+                    firstSelectedTool= {0}
+                    onToolChanged= { ( selectedTool: DiyTool ) => { this.setSelectedTool( selectedTool ); } }
+                />
+                
+                <DataView 
+                    value={ this.diyTools.diyTools[this.firstSelectedTool].bookingHistory } 
+                    layout={ this.state.dataViewBookingHistoryLayout } 
+                    header={ dataViewBookingHistoryHeader }
+                    itemTemplate={ this.dataViewBookingHistoryItemTemplateDisplay } 
+                    rows= { this.dataViewBookingHistoryMaxNumberOfToolsPerPage }
+                    sortOrder={ this.state.dataViewBookingHistorySortOrder }
+                    sortField={ this.state.dataViewBookingHistorySortField }
+                    paginator
+                />
+            </div>
         );
      }
  }

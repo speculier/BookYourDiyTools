@@ -1,7 +1,7 @@
 import './BookYourDiyTools.css';
 
 import React from 'react';
-import { MenuSelections } from './model/dataModel';
+import { DiyTool, MenuSelections } from './model/dataModel';
 import { DiyToolsList } from './components/DiyToolsList';
 
 import PrimereactStyle from '@bit/primefaces.primereact.internal.stylelinks';
@@ -133,6 +133,14 @@ export class BookYourDiyTools extends React.Component<IProps, IState> {
   }
 
   /**
+   * setSelectedTool
+   * @param selectedTool 
+   */
+  setSelectedTool = ( selectedTool: DiyTool ) => {
+    console.log( JSON.stringify(selectedTool) );
+  }
+
+  /**
    * renderDiyTools
    */
   renderDiyTools = (): JSX.Element => {
@@ -149,7 +157,12 @@ export class BookYourDiyTools extends React.Component<IProps, IState> {
           <Panel header="Outils">
 
             { /* DiyTools list */ }
-            <DiyToolsList/>
+            <DiyToolsList
+              showInformations={true}
+              canChangeListContainer={true}
+              firstSelectedTool= {0}
+              onToolChanged= { ( selectedTool: DiyTool ) => { this.setSelectedTool( selectedTool ); } }
+            />
             
           </Panel>
 
