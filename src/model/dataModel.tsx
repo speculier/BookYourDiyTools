@@ -1,9 +1,24 @@
-import { getEnabledCategories } from "trace_events";
 
+/**
+ * Main menu selections
+ */
+export enum MenuSelections {
+    NO_SELECTION,
+    SHOW_TOOLS,
+    SHOW_BOOKINGS,
+    SHOW_REPAIRS
+}
+
+/**
+ * DiyTools list
+ */
 export interface DiyTools {
     diyTools: DiyTool[]
 }
 
+/**
+ * DiyTools categories
+ */
 export enum DiyToolCategory
 {
     SANDER='Ponceuse',            // PONCEUSE
@@ -11,18 +26,24 @@ export enum DiyToolCategory
     DRILL='Perceuse'              // PERCEUSE
 }
 
+/**
+ * DiyTools states
+ */
 export enum DiyToolState
 {
-    NEW='New',
-    GOOD_STATE='Good state',
-    OLD='Old',
-    BAD_STATE='Bad state',
-    VERY_BAD_STATE='Very bad state'
+    NEW='Neuf',
+    GOOD_STATE='Bon état',
+    OLD='Vieux',
+    BAD_STATE='Mauvais état',
+    VERY_BAD_STATE='Très mauvais état'
 }
 
+/**
+ * DiyTool base class
+ */
 export interface DiyTool
 {
-    // For listbox component
+    // For listbox/dropdown components
     label: string;
 
     generalInfos: DiyToolGeneralInformations;
@@ -32,6 +53,9 @@ export interface DiyTool
     bookingHistory?: DiyToolBookingInformations[];
 }
 
+/**
+ * DiyTool general informations
+ */
 export interface DiyToolGeneralInformations
 {
     tradeMark: string;
@@ -42,6 +66,9 @@ export interface DiyToolGeneralInformations
     place: string;
 }
 
+/**
+ * DiyTool state informations (booking state, being repaired?, ...)
+ */
 export interface DiyToolStateInformations
 {
     state: DiyToolState
@@ -49,6 +76,9 @@ export interface DiyToolStateInformations
     isBroken: boolean;
 }
 
+/**
+ * DiyTool booking informations
+ */
 export interface DiyToolBookingInformations
 {
     currentBookerFirstName: string;
