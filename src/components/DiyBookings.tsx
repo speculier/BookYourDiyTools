@@ -192,7 +192,17 @@ interface IPropsDiyBookings { }
      render = (): JSX.Element => { 
         const dataViewBookingHistoryHeader = this.renderBookingHistoryHeader();
 
-        return (<React.Fragment></React.Fragment>);
+        return (<DataView 
+            value={ this.diyTools.diyTools[4].bookingHistory } 
+            layout={ this.state.dataViewBookingHistoryLayout } 
+            header={ dataViewBookingHistoryHeader }
+            itemTemplate={ this.dataViewBookingHistoryItemTemplateDisplay } 
+            paginator 
+            rows= { 9}
+            sortOrder={ this.state.dataViewBookingHistorySortOrder }
+             sortField={ this.state.dataViewBookingHistorySortField }
+        />
+        );
      }
  }
  
