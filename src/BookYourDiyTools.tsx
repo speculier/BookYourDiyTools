@@ -1,7 +1,7 @@
 import './BookYourDiyTools.css';
 
 import React from 'react';
-import { DiyTool, MenuSelections } from './model/dataModel';
+import { DiyTool, MenuSelections } from './model/DiyToolData';
 import { DiyToolsList } from './components/DiyToolsList';
 
 import PrimereactStyle from '@bit/primefaces.primereact.internal.stylelinks';

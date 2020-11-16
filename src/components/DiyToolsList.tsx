@@ -1,13 +1,13 @@
 
 import React from 'react';
-import { DiyTools, DiyTool, DiyToolCategory } from '../model/dataModel';
+import { DiyTools, DiyTool, DiyToolCategory } from '../model/DiyToolData';
+import { DiyToolsStore } from '../store/DiyToolsStore';
+
 import { ListBox } from '@bit/primefaces.primereact.listbox';
 import { Dropdown } from '@bit/primefaces.primereact.dropdown';
 import { SelectButton } from 'primereact/selectbutton';
 import { InputSwitch } from 'primereact/inputswitch';
 import { TabPanel, TabView } from 'primereact/components/tabview/TabView';
-import { DiyToolsStore } from '../store/DiyToolsStore';
-import { threadId } from 'worker_threads';
 
 /**
  * Props for DiyToolsList class

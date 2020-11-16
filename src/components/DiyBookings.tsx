@@ -1,12 +1,16 @@
 
-import { Panel } from '@bit/primefaces.primereact.panel';
 import React from 'react';
 
-import { DiyTools, DiyToolBookingInformations, DiyTool } from '../model/dataModel';
+import { DiyTools, DiyToolBookingInformations, DiyTool } from '../model/DiyToolData';
 import { DiyToolsStore } from '../store/DiyToolsStore';
+import { DiyToolsList } from './DiyToolsList';
+
 import { Dropdown } from '@bit/primefaces.primereact.dropdown';
 import { DataView, DataViewLayoutOptions } from '@bit/primefaces.primereact.dataview';
-import { DiyToolsList } from './DiyToolsList';
+import { Panel } from '@bit/primefaces.primereact.panel';
+import { InputSwitch } from 'primereact/inputswitch';
+import { Booking, Bookings } from '../model/BookingData';
+import { REFUSED } from 'dns';
 
 /**
  * Props for DiyBookings class
@@ -18,6 +22,7 @@ interface IPropsDiyBookings { }
  */
 interface IStateDiyBookings {
     selectedDiyTool: DiyTool;
+    displayCurrentBookings: boolean;
     dataViewBookingHistoryCurrentBooking?: DiyToolBookingInformations;
     dataViewBookingHistoryLayout: string;
     dataViewBookingHistorySortKey: any;
@@ -38,6 +43,7 @@ export class DiyBookings extends React.Component<IPropsDiyBookings, IStateDiyBoo
     private dataViewBookingHistoryMaxNumberOfToolsPerPage: number=10;
     private defaultTemplateDisplay:string = 'list';
     private firstSelectedTool:number = 0;
+    private defaultDisplayAllCurrentBookings = false;
 
     /**
      * constructor
@@ -55,6 +61,9 @@ export class DiyBookings extends React.Component<IPropsDiyBookings, IStateDiyBoo
         this.state = { 
             // Selected tool in the main list
             selectedDiyTool: this.diyTools.diyTools[this.firstSelectedTool],
+
+            // Default bookings display
+            displayCurrentBookings: this.defaultDisplayAllCurrentBookings,
 
             dataViewBookingHistoryLayout: this.defaultTemplateDisplay,
             dataViewBookingHistorySortKey: null,
@@ -92,57 +101,120 @@ export class DiyBookings extends React.Component<IPropsDiyBookings, IStateDiyBoo
     * renderBookingHistoryGridItem
     * @param bookingInfos 
     */
-    renderBookingHistoryGridItem = ( bookingInfos: DiyToolBookingInformations ): JSX.Element => {
+    renderBookingHistoryGridItem = ( bookingInfos: any ): JSX.Element => {
 
-        return (
-            <div style={{ padding: '.5em' }} className='p-col-12 p-md-3'>
-                <Panel header={ bookingInfos.currentBookerFirstName + ' ' + bookingInfos.currentBookerLastName } style={{ textAlign: 'center' }}>
-                    <div className='car-detail'>
-                        { bookingInfos.currentBookerPhoneNumber }
-                    </div>
-                    <div className='car-detail'>
-                        { bookingInfos.currentBookerBackDate.toString() }
-                    </div>
-                    <hr className='ui-widget-content' style={{ borderTop: 0 }} />
-                </Panel>
-            </div>
-        );
+        if ( this.state.displayCurrentBookings ) {
+            return (
+                <div style={{ padding: '.5em' }} className='first-last-name'>
+                    <Panel header={ bookingInfos.toolLabel + ' ' + bookingInfos.bookingInfos.currentBookerLastName } style={{ textAlign: 'center' }}>
+                        <div className='phone-number'>
+                            { bookingInfos.bookingInfos.currentBookerPhoneNumber }
+                        </div>
+                        <div className='back-date'>
+                            { bookingInfos.bookingInfos.currentBookerBackDate.toString() }
+                        </div>
+                        <hr className='ui-widget-content' style={{ borderTop: 0 }} />
+                    </Panel>
+                </div>
+            );
+        } else {
+            return (
+                <div style={{ padding: '.5em' }} className='first-last-name'>
+                    <Panel header={ bookingInfos.currentBookerFirstName + ' ' + bookingInfos.currentBookerLastName } style={{ textAlign: 'center' }}>
+                        <div className='phone-number'>
+                            { bookingInfos.currentBookerPhoneNumber }
+                        </div>
+                        <div className='back-date'>
+                            { bookingInfos.currentBookerBackDate.toString() }
+                        </div>
+                        <hr className='ui-widget-content' style={{ borderTop: 0 }} />
+                    </Panel>
+                </div>
+            );
+        }
+
+        return <React.Fragment></React.Fragment>;
     }
 
     /**
     * renderBookingHistoryListItem
     * @param bookingInfos 
     */
-    renderBookingHistoryListItem = ( bookingInfos : DiyToolBookingInformations ): JSX.Element => {
+    renderBookingHistoryListItem = ( bookingInfos : any ): JSX.Element => {
 
-        return (
-            <div
-                className='p-col-12'
-                style={{ padding: '2em', borderBottom: '1px solid #d9d9d9', display: 'flex' }}
-            >
-                <div className='p-col-12 p-md-3' style={{ width: '25%' }}>
-                    <img
-                        src="pi pi-star"
-                        alt={ bookingInfos.currentBookerFirstName + ' ' + bookingInfos.currentBookerLastName }
-                    />
+       // console.log(JSON.stringify(bookingInfos.generalInfos));
+        console.log(JSON.stringify(bookingInfos.bookingInfos));
+        //console.log(bookingInfos.toolLabel);
+        if (typeof (bookingInfos.bookingInfos) != undefined) {
+            console.log('des resa', JSON.stringify(bookingInfos.bookingInfos));
+        } else {
+            console.log('pas de resa');
+        }
+
+        if ( this.state.displayCurrentBookings === true && typeof (bookingInfos.bookingInfos) != undefined ) {
+            return (
+                <div className='p-col-12' style={ { padding: '2em', borderBottom: '1px solid #d9d9d9', display: 'flex' } }>
+                
+                    <div className='p-col-12 p-md-3' style={{ width: '25%' }}>
+                        <img
+                            src="pi pi-star"
+                            alt={ bookingInfos.toolLabel }
+                        />
+                    </div>
+                    
+                    <div className='p-col-12 p-md-8 car-details' style={{ width: '75%' }}>
+                        <div className='p-grid' style={{ display: 'flex', flexWrap: 'wrap' }}>
+                            <div className='p-col-2 p-sm-6' style={{ width: '33%' }}>Réservant:</div>
+                            <div className='p-col-10 p-sm-6' style={{ width: '33%' }}>
+                                { bookingInfos.bookingInfos.currentBookerFirstName + ' ' + bookingInfos.bookingInfos.currentBookerLastName }
+                            </div>
+
+                            <div className='p-col-2 p-sm-6' style={{ width: '33%' }}>Téléphone:</div>
+                            <div className='p-col-10 p-sm-6' style={{ width: '33%' }}>
+                                { bookingInfos.bookingInfos.currentBookerPhoneNumber }
+                            </div>
+
+                            <div className='p-col-2 p-sm-6' style={{ width: '33%' }}>Date de retour:</div>
+                            <div className='p-col-10 p-sm-6' style={{ width: '33%' }}>
+                                { bookingInfos.bookingInfos.currentBookerBackDate.toString() }
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
-                <div className='p-col-12 p-md-8 car-details' style={{ width: '66.6667%' }}>
-                    <div className='p-grid' style={{ display: 'flex', flexWrap: 'wrap' }}>
-                        <div className='p-col-2 p-sm-6' style={{ width: '50%' }}>Date de retour:</div>
-                        <div className='p-col-10 p-sm-6' style={{ width: '50%' }}>{ bookingInfos.currentBookerBackDate.toString() }</div>
+            );
+        } else if (typeof (bookingInfos.bookingInfos) != undefined) {
+            return (
+                <div
+                    className='p-col-12'
+                    style={{ padding: '2em', borderBottom: '1px solid #d9d9d9', display: 'flex' }}
+                >
+                    <div className='p-col-12 p-md-3' style={{ width: '25%' }}>
+                        <img
+                            src="pi pi-star"
+                            alt={ bookingInfos.currentBookerFirstName + ' ' + bookingInfos.currentBookerLastName }
+                        />
+                    </div>
+                    <div className='p-col-12 p-md-8 car-details' style={{ width: '66.6667%' }}>
+                        <div className='p-grid' style={{ display: 'flex', flexWrap: 'wrap' }}>
+                            <div className='p-col-2 p-sm-6' style={{ width: '50%' }}>Date de retour:</div>
+                            <div className='p-col-10 p-sm-6' style={{ width: '50%' }}>{ bookingInfos.currentBookerBackDate.toString() }</div>
 
-                        <div className='p-col-2 p-sm-6' style={{ width: '50%' }}>Téléphone:</div>
-                        <div className='p-col-10 p-sm-6' style={{ width: '50%' }}>{ bookingInfos.currentBookerPhoneNumber }</div>
+                            <div className='p-col-2 p-sm-6' style={{ width: '50%' }}>Téléphone:</div>
+                            <div className='p-col-10 p-sm-6' style={{ width: '50%' }}>{ bookingInfos.currentBookerPhoneNumber }</div>
+                        </div>
+                    </div>
+
+                    <div
+                        className='p-col-12 p-md-1 search-icon'
+                        style={{ marginTop: '40px', width: '8.3333%' }}
+                    >
                     </div>
                 </div>
+            );           
+        }
 
-                <div
-                    className='p-col-12 p-md-1 search-icon'
-                    style={{ marginTop: '40px', width: '8.3333%' }}
-                >
-                </div>
-            </div>
-        );
+        return (<React.Fragment></React.Fragment>);
     }
 
     /**
@@ -192,29 +264,77 @@ export class DiyBookings extends React.Component<IPropsDiyBookings, IStateDiyBoo
     }
 
     /**
-     * setSelectedTool
-     * @param selectedTool 
+     * renderBookingsTypeOfDisplay
      */
-    setSelectedTool = ( selectedTool: DiyTool ) => {
-        console.log( 'Bookings:' , JSON.stringify(selectedTool) );
+    renderBookingsTypeOfDisplay = () : JSX.Element => {
+        return (
+            <div className="bookings-switch-type-of-display">
+                <label>Afficher les réservations en cours:</label><br/>
+                <InputSwitch 
+                    checked={ this.state.displayCurrentBookings } 
+                    onChange={ (e) => this.setState( { displayCurrentBookings: e.value } ) } 
+                /><br/>
+            </div>
+        );
     }
 
     /**
-     * render method
+     * renderAllBookings
      */
-    render = (): JSX.Element => { 
-        const dataViewBookingHistoryHeader = this.renderBookingHistoryHeader();
+    renderCurrentBookings = (dataViewBookingHistoryHeader: any): JSX.Element => { 
+ 
+        let allBookings:Bookings= { bookings: [] };
+
+        this.diyTools.diyTools.forEach(element => {
+            let currentBooking:Booking = {
+
+                bookingInfos: element.currentBookingInfos as DiyToolBookingInformations,
+                generalInfos: element.generalInfos,
+                toolLabel: element.label
+            }; 
+
+            allBookings.bookings.push(currentBooking);
+        });
 
         return (
             <div className='bookings'>
+
+                { /* Display all bookings or not */ }
+                { this.renderBookingsTypeOfDisplay() }
+                
+                <DataView 
+                    value={ allBookings.bookings } 
+                    layout={ this.state.dataViewBookingHistoryLayout } 
+                    header={ dataViewBookingHistoryHeader }
+                    itemTemplate={ this.dataViewBookingHistoryItemTemplateDisplay } 
+                    rows= { this.dataViewBookingHistoryMaxNumberOfToolsPerPage }
+                    sortOrder={ this.state.dataViewBookingHistorySortOrder }
+                    sortField={ this.state.dataViewBookingHistorySortField }
+                    paginator
+                />
+            </div>
+        );
+    }
+
+    /**
+     * renderBookingsPerTools
+     */
+    renderBookingsPerTools = (dataViewBookingHistoryHeader: any): JSX.Element => { 
+ 
+        return (
+            <div className='bookings'>
+
+                { /* Display all bookings or not */ }
+                { this.renderBookingsTypeOfDisplay() }
+
                 { /* DiyBookings list */ }
                 <DiyToolsList
                     showInformations={false}
                     canChangeListContainer={false}
                     firstSelectedTool= { this.firstSelectedTool}
-                    onToolChanged= { ( selectedTool: DiyTool ) => { this.setSelectedTool( selectedTool ); this.setState( { selectedDiyTool: selectedTool } ); } }
+                    onToolChanged= { ( selectedTool: DiyTool ) => { this.setState( { selectedDiyTool: selectedTool } ); } }
                 />
-                
+               
                 <DataView 
                     value={ this.state.selectedDiyTool.bookingHistory } 
                     layout={ this.state.dataViewBookingHistoryLayout } 
@@ -227,6 +347,19 @@ export class DiyBookings extends React.Component<IPropsDiyBookings, IStateDiyBoo
                 />
             </div>
         );
+    }
+
+    /**
+     * render method
+     */
+    render = (): JSX.Element => { 
+        const dataViewBookingHistoryHeader = this.renderBookingHistoryHeader();
+
+        if ( this.state.displayCurrentBookings === true ) {
+            return this.renderCurrentBookings(dataViewBookingHistoryHeader);
+        } else {
+            return this.renderBookingsPerTools(dataViewBookingHistoryHeader);
+        }  
      }
  }
  

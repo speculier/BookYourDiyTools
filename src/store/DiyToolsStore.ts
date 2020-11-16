@@ -1,4 +1,4 @@
-import { DiyToolCategory, DiyTools, DiyToolState } from '../model/dataModel';
+import { DiyToolCategory, DiyTools, DiyToolState } from '../model/DiyToolData';
 
 /**
  * DiyToolsStore class
@@ -22,6 +22,7 @@ export class DiyToolsStore {
 					booked: false,
 					generalInfos: { description: 'Taille haie nul à chier', place: 'C1', category: DiyToolCategory.HEDGE_TRIMMER, tradeMark: 'Kubota' }, 
 					stateInfos: { state: DiyToolState.VERY_BAD_STATE, isBeingRepaired: false, isBroken: true },
+					currentBookingInfos: { currentBookerFirstName: 'Anthony', currentBookerLastName: 'HAMEL', currentBookerPhoneNumber: '0612345678', currentBookerBackDate: new Date() },
 					bookingHistory: 
 					[ 
 						{ currentBookerFirstName: 'Sébastien', currentBookerLastName: 'PECULIER', currentBookerPhoneNumber: '0612345678', currentBookerBackDate: new Date() },
@@ -30,22 +31,26 @@ export class DiyToolsStore {
 				{ label:'Taille haie 2',
 				booked: false,
 				generalInfos: { description: 'Taille haie en bon état', place: 'C2', category: DiyToolCategory.HEDGE_TRIMMER, tradeMark: 'Black & Decker' }, 
-				stateInfos: { state: DiyToolState.GOOD_STATE, isBeingRepaired: false, isBroken: false }
-				},
+				stateInfos: { state: DiyToolState.GOOD_STATE, isBeingRepaired: false, isBroken: false },
+				currentBookingInfos: { currentBookerFirstName: 'Christohe', currentBookerLastName: 'COUTINEAU', currentBookerPhoneNumber: '0612345678', currentBookerBackDate: new Date() },
+			},
 				{ label:'Taille haie 3',
 				booked: false,
 				generalInfos: { description: 'Taille haie vert', place: 'C3', category: DiyToolCategory.HEDGE_TRIMMER, tradeMark: 'Black & Decker' }, 
-				stateInfos: { state: DiyToolState.NEW, isBeingRepaired: false, isBroken: false }
+				stateInfos: { state: DiyToolState.NEW, isBeingRepaired: false, isBroken: false },
+				currentBookingInfos: { currentBookerFirstName: 'Christohe', currentBookerLastName: 'OLIVAUD', currentBookerPhoneNumber: '0612345678', currentBookerBackDate: new Date() },
 				},
 				{ label:'Ponceuse 1',
 					booked: false,
 					generalInfos: { description: 'Ponceuse d\'angle', place: 'A1', category: DiyToolCategory.SANDER, tradeMark: 'Bosch' }, 
-					stateInfos: { state: DiyToolState.NEW, isBeingRepaired: false, isBroken: false }
+					stateInfos: { state: DiyToolState.NEW, isBeingRepaired: false, isBroken: false },
+					currentBookingInfos: { currentBookerFirstName: 'Frédéric', currentBookerLastName: 'MARTIENNE', currentBookerPhoneNumber: '0612345678', currentBookerBackDate: new Date() },
 				},
 				{ label:'Perceuse Hilti sur batterie',
 					booked: false,
 					generalInfos: { description: 'Perceuse Hilti', place: 'H1', category: DiyToolCategory.DRILL, tradeMark: 'Hilti', instructionsForUse:'Instruction 1' }, 
 					stateInfos: { state: DiyToolState.GOOD_STATE, isBeingRepaired: false, isBroken: true },
+					currentBookingInfos: { currentBookerFirstName: 'Ioan', currentBookerLastName: 'LE GUE', currentBookerPhoneNumber: '0612345678', currentBookerBackDate: new Date() },
 					bookingHistory: 
 						[ 
 							{ currentBookerFirstName: 'Thierry', currentBookerLastName: 'JILIBERT', currentBookerPhoneNumber: '060000000000', currentBookerBackDate: new Date() },
