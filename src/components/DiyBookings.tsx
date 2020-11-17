@@ -2,15 +2,15 @@
 import React from 'react';
 
 import { DiyTools, DiyToolBookingInformations, DiyTool } from '../model/DiyToolData';
+import { Booking, Bookings } from '../model/BookingData';
 import { DiyToolsStore } from '../store/DiyToolsStore';
 import { DiyToolsList } from './DiyToolsList';
 
 import { Dropdown } from '@bit/primefaces.primereact.dropdown';
 import { DataView, DataViewLayoutOptions } from '@bit/primefaces.primereact.dataview';
 import { Panel } from '@bit/primefaces.primereact.panel';
-import { InputSwitch } from 'primereact/inputswitch';
-import { Booking, Bookings } from '../model/BookingData';
-import { REFUSED } from 'dns';
+import { Rating } from '@bit/primefaces.primereact.rating';
+import { InputSwitch } from 'primereact/components/inputswitch/InputSwitch';
 
 /**
  * Props for DiyBookings class
@@ -83,17 +83,34 @@ export class DiyBookings extends React.Component<IPropsDiyBookings, IStateDiyBoo
         const value = event.value;
 
         if ( value.indexOf('!') === 0 ) {
-            this.setState({
+            this.setState( {
                 dataViewBookingHistorySortOrder: -1,
-                dataViewBookingHistorySortField: value.substring(1, value.length),
+                dataViewBookingHistorySortField: value.substring( 1, value.length ),
                 dataViewBookingHistorySortKey: value
-            });
+            } );
         } else {
-            this.setState({
+            this.setState( {
                 dataViewBookingHistorySortOrder: 1,
                 dataViewBookingHistorySortField: value,
                 dataViewBookingHistorySortKey: value
-            });
+            } );
+        }
+    }
+
+    /**
+     * renderRatingForGrid
+     * @param infos 
+     */
+    renderRatingForGrid = ( infos : DiyToolBookingInformations ): JSX.Element => {
+
+        if ( typeof infos.bookerRating !== 'undefined' ) {
+            return (
+                <div className='rating'>
+                    <Rating value={ infos.bookerRating } cancel={false}></Rating>
+                </div> 
+            );
+        } else {
+            return <React.Fragment></React.Fragment>
         }
     }
 
@@ -105,13 +122,16 @@ export class DiyBookings extends React.Component<IPropsDiyBookings, IStateDiyBoo
 
         if ( this.state.displayCurrentBookings ) {
             return (
-                <div style={{ padding: '.5em' }} className='first-last-name'>
-                    <Panel header={ bookingInfos.toolLabel + ' ' + bookingInfos.bookingInfos.currentBookerLastName } style={{ textAlign: 'center' }}>
+                <div style={{ padding: '.5em' }} className='tool-label'>
+                    <Panel header={ bookingInfos.toolLabel } style={{ textAlign: 'center' }}>
+                        <div className='first-last-name'>
+                            { bookingInfos.bookingInfos.bookerFirstName + ' ' + bookingInfos.bookingInfos.bookerLastName }
+                        </div>
                         <div className='phone-number'>
-                            { bookingInfos.bookingInfos.currentBookerPhoneNumber }
+                            { bookingInfos.bookingInfos.bookerPhoneNumber }
                         </div>
                         <div className='back-date'>
-                            { bookingInfos.bookingInfos.currentBookerBackDate.toString() }
+                            { bookingInfos.bookingInfos.bookerBackDate.toString() }
                         </div>
                         <hr className='ui-widget-content' style={{ borderTop: 0 }} />
                     </Panel>
@@ -120,20 +140,39 @@ export class DiyBookings extends React.Component<IPropsDiyBookings, IStateDiyBoo
         } else {
             return (
                 <div style={{ padding: '.5em' }} className='first-last-name'>
-                    <Panel header={ bookingInfos.currentBookerFirstName + ' ' + bookingInfos.currentBookerLastName } style={{ textAlign: 'center' }}>
+                    <Panel header={ bookingInfos.bookerFirstName + ' ' + bookingInfos.bookerLastName } style={{ textAlign: 'center' }}>
                         <div className='phone-number'>
-                            { bookingInfos.currentBookerPhoneNumber }
+                            { bookingInfos.bookerPhoneNumber }
                         </div>
                         <div className='back-date'>
-                            { bookingInfos.currentBookerBackDate.toString() }
+                            { bookingInfos.bookerBackDate.toString() }
                         </div>
+                        { this.renderRatingForGrid( bookingInfos ) }
                         <hr className='ui-widget-content' style={{ borderTop: 0 }} />
                     </Panel>
                 </div>
             );
         }
+    }
 
-        return <React.Fragment></React.Fragment>;
+    /**
+     * renderRatingForList
+     * @param infos 
+     */
+    renderRatingForList = ( infos : DiyToolBookingInformations ): JSX.Element => {
+
+        if ( typeof infos.bookerRating !== 'undefined' ) {
+            return (
+                <div className='rating' >
+                    <div className='rating-label' style={{ width: '33%' }}>Note utilisateur:</div>
+                    <div className='rating-value' style={{ width: '33%' }}>
+                        <Rating value={ infos.bookerRating } cancel={false}></Rating>
+                    </div>  
+                    </div> 
+            );
+        } else {
+            return <React.Fragment></React.Fragment>
+        }
     }
 
     /**
@@ -142,73 +181,44 @@ export class DiyBookings extends React.Component<IPropsDiyBookings, IStateDiyBoo
     */
     renderBookingHistoryListItem = ( bookingInfos : any ): JSX.Element => {
 
-       // console.log(JSON.stringify(bookingInfos.generalInfos));
-        console.log(JSON.stringify(bookingInfos.bookingInfos));
-        //console.log(bookingInfos.toolLabel);
-        if (typeof (bookingInfos.bookingInfos) != undefined) {
-            console.log('des resa', JSON.stringify(bookingInfos.bookingInfos));
-        } else {
-            console.log('pas de resa');
-        }
-
-        if ( this.state.displayCurrentBookings === true && typeof (bookingInfos.bookingInfos) != undefined ) {
+        if ( this.state.displayCurrentBookings === true && typeof (bookingInfos.bookingInfos) !== 'undefined' ) {
             return (
-                <div className='p-col-12' style={ { padding: '2em', borderBottom: '1px solid #d9d9d9', display: 'flex' } }>
-                
-                    <div className='p-col-12 p-md-3' style={{ width: '25%' }}>
-                        <img
-                            src="pi pi-star"
-                            alt={ bookingInfos.toolLabel }
-                        />
+                <div className='bookings-list' style={ { padding: '2em', borderBottom: '1px solid #d9d9d9', display: 'flex' } }>
+                    <div className='tool-label' style={{ width: '25%' }}>
+                        <img src="pi pi-star" alt={ bookingInfos.bookingInfos.toolLabel }/>
                     </div>
-                    
-                    <div className='p-col-12 p-md-8 car-details' style={{ width: '75%' }}>
-                        <div className='p-grid' style={{ display: 'flex', flexWrap: 'wrap' }}>
-                            <div className='p-col-2 p-sm-6' style={{ width: '33%' }}>Réservant:</div>
-                            <div className='p-col-10 p-sm-6' style={{ width: '33%' }}>
-                                { bookingInfos.bookingInfos.currentBookerFirstName + ' ' + bookingInfos.bookingInfos.currentBookerLastName }
+                    <div className='booking-details' style={{ width: '75%' }}>
+                        <div className='booking-details-grid' style={{ display: 'flex', flexWrap: 'wrap' }}>
+                            <div className='booker-name-label' style={{ width: '33%' }}>Réservant:</div>
+                            <div className='booker-name-value' style={{ width: '33%' }}>
+                                { bookingInfos.bookingInfos.bookerFirstName + ' ' + bookingInfos.bookingInfos.bookerLastName }
                             </div>
-
-                            <div className='p-col-2 p-sm-6' style={{ width: '33%' }}>Téléphone:</div>
-                            <div className='p-col-10 p-sm-6' style={{ width: '33%' }}>
-                                { bookingInfos.bookingInfos.currentBookerPhoneNumber }
+                            <div className='phone-label' style={{ width: '33%' }}>Téléphone:</div>
+                            <div className='phone-value' style={{ width: '33%' }}>
+                                { bookingInfos.bookingInfos.bookerPhoneNumber }
                             </div>
-
-                            <div className='p-col-2 p-sm-6' style={{ width: '33%' }}>Date de retour:</div>
-                            <div className='p-col-10 p-sm-6' style={{ width: '33%' }}>
-                                { bookingInfos.bookingInfos.currentBookerBackDate.toString() }
+                            <div className='back-date-label' style={{ width: '33%' }}>Date de retour:</div>
+                            <div className='back-date-value' style={{ width: '33%' }}>
+                                { bookingInfos.bookingInfos.bookerBackDate.toString() }
                             </div>
                         </div>
                     </div>
-
                 </div>
             );
-        } else if (typeof (bookingInfos.bookingInfos) != undefined) {
+        } else if ( typeof (bookingInfos) !== 'undefined' ) {
             return (
-                <div
-                    className='p-col-12'
-                    style={{ padding: '2em', borderBottom: '1px solid #d9d9d9', display: 'flex' }}
-                >
-                    <div className='p-col-12 p-md-3' style={{ width: '25%' }}>
-                        <img
-                            src="pi pi-star"
-                            alt={ bookingInfos.currentBookerFirstName + ' ' + bookingInfos.currentBookerLastName }
-                        />
+                <div className='bookings-list' style={{ padding: '2em', borderBottom: '1px solid #d9d9d9', display: 'flex' }} >
+                    <div className='booker-name' style={{ width: '25%' }}>
+                        <img src="pi pi-star" alt={ bookingInfos.bookerFirstName + ' ' + bookingInfos.bookerLastName }/>
                     </div>
-                    <div className='p-col-12 p-md-8 car-details' style={{ width: '66.6667%' }}>
-                        <div className='p-grid' style={{ display: 'flex', flexWrap: 'wrap' }}>
-                            <div className='p-col-2 p-sm-6' style={{ width: '50%' }}>Date de retour:</div>
-                            <div className='p-col-10 p-sm-6' style={{ width: '50%' }}>{ bookingInfos.currentBookerBackDate.toString() }</div>
-
-                            <div className='p-col-2 p-sm-6' style={{ width: '50%' }}>Téléphone:</div>
-                            <div className='p-col-10 p-sm-6' style={{ width: '50%' }}>{ bookingInfos.currentBookerPhoneNumber }</div>
+                    <div className='booking-details' style={{ width: '75%' }}>
+                        <div className='booking-details-grid' style={{ display: 'flex', flexWrap: 'wrap' }}>
+                            <div className='back-date-label' style={{ width: '33%' }}>Date de retour:</div>
+                            <div className='back-date-value' style={{ width: '33%' }}>{ bookingInfos.bookerBackDate.toString() }</div>
+                            <div className='phone-label' style={{ width: '33%' }}>Téléphone:</div>
+                            <div className='phone-value' style={{ width: '33%' }}>{ bookingInfos.bookerPhoneNumber }</div>
+                            { this.renderRatingForList( bookingInfos ) } 
                         </div>
-                    </div>
-
-                    <div
-                        className='p-col-12 p-md-1 search-icon'
-                        style={{ marginTop: '40px', width: '8.3333%' }}
-                    >
                     </div>
                 </div>
             );           
@@ -236,24 +246,39 @@ export class DiyBookings extends React.Component<IPropsDiyBookings, IStateDiyBoo
      * renderBookingHistoryHeader
      */
     renderBookingHistoryHeader = () => {
-        const sortOptions = [
-            { label: 'First Name', value: 'first-name' },
-            { label: 'Last Name', value: 'last-name' },
-            { label: 'Téléphone', value: 'phone-number' },
-            { label: 'Date de retour', value: 'back-date' }
-        ];
+
+        let sortOptions;
+
+        if (  this.state.displayCurrentBookings === true ) {
+            sortOptions = [
+                { label: 'Outil', value: 'toolLabel' },
+                { label: 'Prénom', value: 'bookerFirstName' },
+                { label: 'NOM', value: 'bookerLastName' },
+                { label: 'Téléphone', value: 'bookerPhoneNumber' },
+                { label: 'Date de retour', value: 'bookerBackDate' },
+                { label: 'Note utilisateur', value: 'bookerRating' }
+            ];
+        } else {
+            sortOptions = [
+                { label: 'Prénom', value: 'bookerFirstName' },
+                { label: 'NOM', value: 'bookerLastName' },
+                { label: 'Téléphone', value: 'bookerPhoneNumber' },
+                { label: 'Date de retour', value: 'bookerBackDate' },
+                { label: 'Note utilisateur', value: 'bookerRating' }
+            ];
+        }
 
         return (
-            <div className='p-grid'>
-                <div className='p-col-6' style={{ textAlign: 'left', float: 'left' }}>
+            <div className='header-bookings-list'>
+                <div className='bookings-dropdown-sort-type' style={{ textAlign: 'left', float: 'left' }}>
                     <Dropdown
                         options={ sortOptions }
                         value={ this.state.dataViewBookingHistorySortKey }
-                        placeholder='Sort By'
+                        placeholder='Trier par'
                         onChange={ this.dataViewBookingHistoryOnSortChange }
                     />
                 </div>
-                <div className='p-col-6' style={{ textAlign: 'right' }}>
+                <div className='bookings-view-type' style={{ textAlign: 'right' }}>
                     <DataViewLayoutOptions
                         layout={ this.state.dataViewBookingHistoryLayout }
                         onChange={ e => this.setState( { dataViewBookingHistoryLayout: e.value } ) }
@@ -285,9 +310,9 @@ export class DiyBookings extends React.Component<IPropsDiyBookings, IStateDiyBoo
  
         let allBookings:Bookings= { bookings: [] };
 
+        // Concatenate all bookings of each tool in one array
         this.diyTools.diyTools.forEach(element => {
             let currentBooking:Booking = {
-
                 bookingInfos: element.currentBookingInfos as DiyToolBookingInformations,
                 generalInfos: element.generalInfos,
                 toolLabel: element.label
@@ -301,7 +326,7 @@ export class DiyBookings extends React.Component<IPropsDiyBookings, IStateDiyBoo
 
                 { /* Display all bookings or not */ }
                 { this.renderBookingsTypeOfDisplay() }
-                
+                                
                 <DataView 
                     value={ allBookings.bookings } 
                     layout={ this.state.dataViewBookingHistoryLayout } 

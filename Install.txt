@@ -9,13 +9,17 @@
 - Installer typescript avec npm : 
 		npm i -g typescript
 		tsc --version
+    
+npm i classnames --save
 
 - Installer primereact : 
-(npm i primereact --save)
-(npm config set @bit:registry https://node.bit.dev)
-npm i @bit/primefaces.primereact.internal.stylelinks ou npm install @types/bit__primefaces.primereact.internal.stylelinks
-npm i @bit/primefaces.primereact.listbox
-npm i @bit/primefaces.primereact.menu
-npm i @bit/primefaces.primereact.dataview
-npm i classnames --save
+npm i primereact --save
+
+npm config set @bit:registry https://node.bit.dev
+npm i @bit/primefaces.primereact.internal.stylelinks ou npm install @types/bit__primefaces.primereact.internal.stylelinks --save
+npm i @bit/primefaces.primereact.listbox --save
+npm i @bit/primefaces.primereact.menu --save
+npm i @bit/primefaces.primereact.dataview --save
+npm i @bit/primefaces.primereact.rating --save
+
 

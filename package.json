@@ -9,6 +9,7 @@
     "@bit/primefaces.primereact.listbox": "^4.2.0",
     "@bit/primefaces.primereact.menu": "^4.2.0",
     "@bit/primefaces.primereact.panel": "^4.2.0",
+    "@bit/primefaces.primereact.rating": "^4.2.0",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.5.0",
     "@testing-library/user-event": "^7.2.1",

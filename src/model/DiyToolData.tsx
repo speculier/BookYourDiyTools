@@ -81,8 +81,9 @@ export interface DiyToolStateInformations
  */
 export interface DiyToolBookingInformations
 {
-    currentBookerFirstName: string;
-    currentBookerLastName: string;
-    currentBookerPhoneNumber: string;
-    currentBookerBackDate: Date;
+    bookerFirstName: string;
+    bookerLastName: string;
+    bookerPhoneNumber: string;
+    bookerBackDate: Date;
+    bookerRating?: number;
 }
