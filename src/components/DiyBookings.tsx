@@ -326,7 +326,9 @@ export class DiyBookings extends React.Component<IPropsDiyBookings, IStateDiyBoo
 
                 { /* Display all bookings or not */ }
                 { this.renderBookingsTypeOfDisplay() }
-                                
+
+                { /* Booking list per tools */ }   
+                <label>Liste de toutes les réservations :</label><br/>       
                 <DataView 
                     value={ allBookings.bookings } 
                     layout={ this.state.dataViewBookingHistoryLayout } 
@@ -359,7 +361,9 @@ export class DiyBookings extends React.Component<IPropsDiyBookings, IStateDiyBoo
                     firstSelectedTool= { this.firstSelectedTool}
                     onToolChanged= { ( selectedTool: DiyTool ) => { this.setState( { selectedDiyTool: selectedTool } ); } }
                 />
-               
+                               
+                { /* Booking list per tools */ }
+                <label>Liste des réservations passées pour cet outil :</label><br/>
                 <DataView 
                     value={ this.state.selectedDiyTool.bookingHistory } 
                     layout={ this.state.dataViewBookingHistoryLayout } 

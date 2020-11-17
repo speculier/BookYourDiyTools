@@ -163,7 +163,9 @@ export class BookYourDiyTools extends React.Component<IProps, IState> {
               firstSelectedTool= {0}
               onToolChanged= { ( selectedTool: DiyTool ) => { this.setSelectedTool( selectedTool ); } }
             />
-            
+
+            <Button label=' + ' minLength={10} className='button-addttool'/><br/>
+            <Button label=' - ' minLength={10} className='button-addttool'/>
           </Panel>
 
       </div>

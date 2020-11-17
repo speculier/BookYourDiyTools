@@ -96,7 +96,6 @@ export class DiyToolsList extends React.Component<IPropsDiyToolsList, IStateDiyT
     renderTabView = (): JSX.Element => {
         return (
             <div className="diytool-taview">
-                <label>Liste des réservations de cet outil :</label><br/>
                 <TabView 
                     className="tabview-custom" 
                     activeIndex={ this.state.selectedTab } 
