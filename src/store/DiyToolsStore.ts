@@ -26,6 +26,13 @@ export class DiyToolsStore {
 					bookingHistory: 
 					[ 
 						{ bookerFirstName: 'Sébastien', bookerLastName: 'PECULIER', bookerPhoneNumber: '0612345678', bookerBackDate: new Date(), bookerRating:0 },
+					],
+					currentRepairInfos: { contactFirstName: 'Ioan', contactLastName: 'LE GUE', repairCompanyName: 'AAAA', repairDate:  new Date(), repairRating:7 },
+					repairHistory: 
+					[ 
+						{ contactFirstName: 'Patrick', contactLastName: 'CHOUPIN', repairCompanyName: 'REPARTOUBONJOUR', repairDate:  new Date(), repairRating:10 },
+						{ contactFirstName: 'Stéphane', contactLastName: 'PERNOT', repairCompanyName: 'CADEPANNE44', repairDate:  new Date(), repairRating:5 },
+						{ contactFirstName: 'Olivier', contactLastName: 'LABONNE', repairCompanyName: 'Olvier LABONNE', repairDate:  new Date(), repairRating:2 },
 					]
 				},
 				{ label:'Taille haie 2',
@@ -33,6 +40,10 @@ export class DiyToolsStore {
 				generalInfos: { description: 'Taille haie en bon état', place: 'C2', category: DiyToolCategory.HEDGE_TRIMMER, tradeMark: 'Black & Decker' }, 
 				stateInfos: { state: DiyToolState.GOOD_STATE, isBeingRepaired: false, isBroken: false },
 				currentBookingInfos: { bookerFirstName: 'Christohe', bookerLastName: 'COUTINEAU', bookerPhoneNumber: '0612345678', bookerBackDate: new Date() },
+				repairHistory: 
+					[ 
+						{ contactFirstName: 'Sébastien', contactLastName: 'PECULIER', repairCompanyName: 'DEPANNE2000', repairDate:  new Date(), repairRating:1 },
+					]
 			},
 				{ label:'Taille haie 3',
 				booked: false,
@@ -56,7 +67,8 @@ export class DiyToolsStore {
 							{ bookerFirstName: 'Thierry', bookerLastName: 'JILIBERT', bookerPhoneNumber: '060000000000', bookerBackDate: new Date(), bookerRating:10 },
 							{ bookerFirstName: 'Freddy', bookerLastName: 'ROBERGE', bookerPhoneNumber: '061111111111', bookerBackDate: new Date(), bookerRating:5 },
 							{ bookerFirstName: 'Guillaume', bookerLastName: 'BARANGER', bookerPhoneNumber: '073333333333', bookerBackDate: new Date(), bookerRating:3 },
-						]
+						],
+					currentRepairInfos: { contactFirstName: 'Johan', contactLastName: 'PECOT', repairCompanyName: 'BBBBBBBB', repairDate:  new Date(), repairRating:7 },
 				}
 			  ]  
 		}

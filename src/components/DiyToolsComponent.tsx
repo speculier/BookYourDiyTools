@@ -10,9 +10,9 @@ import { InputSwitch } from 'primereact/inputswitch';
 import { TabPanel, TabView } from 'primereact/components/tabview/TabView';
 
 /**
- * Props for DiyToolsList class
+ * Props for DiyTools class
  */
-interface IPropsDiyToolsList { 
+interface IPropsDiyTools { 
     showInformations: boolean;
     canChangeListContainer: boolean;
     firstSelectedTool?:number;
@@ -20,18 +20,18 @@ interface IPropsDiyToolsList {
 }
 
 /**
- * States for DiyToolsList class
+ * States for DiyTools class
  */
-interface IStateDiyToolsList {
+interface IStateDiyTools {
     selectedDiyTool: DiyTool;
     selectedTab: number;
     displayToolsInAFlatList: boolean;
 }
 
 /**
- * DiyToolsList class
+ * DiyToolsComponent class
  */
-export class DiyToolsList extends React.Component<IPropsDiyToolsList, IStateDiyToolsList> {
+export class DiyToolsComponent extends React.Component<IPropsDiyTools, IStateDiyTools> {
     
     private defaultFirstSelectedTool:number = 0;
     private defaultFirstSelectedTab:number = 0;
@@ -43,7 +43,7 @@ export class DiyToolsList extends React.Component<IPropsDiyToolsList, IStateDiyT
      * constructor
      * @param props 
      */
-    constructor(props: IPropsDiyToolsList) {
+    constructor(props: IPropsDiyTools) {
         
         // Props
         super(props);

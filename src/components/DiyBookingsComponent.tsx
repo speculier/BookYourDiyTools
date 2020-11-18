@@ -1,10 +1,10 @@
 
 import React from 'react';
 
-import { DiyTools, DiyToolBookingInformations, DiyTool } from '../model/DiyToolData';
-import { Booking, Bookings } from '../model/BookingData';
+import { DiyTools, DiyTool } from '../model/DiyToolData';
+import { DiyBooking, DiyBookings, DiyToolBookingInformations } from '../model/DiyBookingData';
 import { DiyToolsStore } from '../store/DiyToolsStore';
-import { DiyToolsList } from './DiyToolsList';
+import { DiyToolsComponent } from './DiyToolsComponent';
 
 import { Dropdown } from '@bit/primefaces.primereact.dropdown';
 import { DataView, DataViewLayoutOptions } from '@bit/primefaces.primereact.dataview';
@@ -13,12 +13,12 @@ import { Rating } from '@bit/primefaces.primereact.rating';
 import { InputSwitch } from 'primereact/components/inputswitch/InputSwitch';
 
 /**
- * Props for DiyBookings class
+ * Props for DiyBookingsComponent class
  */
 interface IPropsDiyBookings { }
 
 /**
- * States for DiyBookings class
+ * States for DiyBookingsComponent class
  */
 interface IStateDiyBookings {
     selectedDiyTool: DiyTool;
@@ -33,14 +33,13 @@ interface IStateDiyBookings {
 }
 
 /**
- * DiyBookings class
+ * DiyBookingsComponent class
 */
-export class DiyBookings extends React.Component<IPropsDiyBookings, IStateDiyBookings> {
+export class DiyBookingsComponent extends React.Component<IPropsDiyBookings, IStateDiyBookings> {
      
     private diyStore:DiyToolsStore = new DiyToolsStore();
     private diyTools: DiyTools;
-    private firstSelectedBooker:number = 0;
-    private dataViewBookingHistoryMaxNumberOfToolsPerPage: number=10;
+    private dataViewBookingHistoryMaxNumberPerPage: number=10;
     private defaultTemplateDisplay:string = 'list';
     private firstSelectedTool:number = 0;
     private defaultDisplayAllCurrentBookings = false;
@@ -105,7 +104,7 @@ export class DiyBookings extends React.Component<IPropsDiyBookings, IStateDiyBoo
 
         if ( typeof infos.bookerRating !== 'undefined' ) {
             return (
-                <div className='rating'>
+                <div className='booking-rating'>
                     <Rating value={ infos.bookerRating } cancel={false}></Rating>
                 </div> 
             );
@@ -304,15 +303,15 @@ export class DiyBookings extends React.Component<IPropsDiyBookings, IStateDiyBoo
     }
 
     /**
-     * renderAllBookings
+     * renderCurrentBookings
      */
     renderCurrentBookings = (dataViewBookingHistoryHeader: any): JSX.Element => { 
  
-        let allBookings:Bookings= { bookings: [] };
+        let allBookings:DiyBookings= { bookings: [] };
 
         // Concatenate all bookings of each tool in one array
         this.diyTools.diyTools.forEach(element => {
-            let currentBooking:Booking = {
+            let currentBooking:DiyBooking = {
                 bookingInfos: element.currentBookingInfos as DiyToolBookingInformations,
                 generalInfos: element.generalInfos,
                 toolLabel: element.label
@@ -334,7 +333,7 @@ export class DiyBookings extends React.Component<IPropsDiyBookings, IStateDiyBoo
                     layout={ this.state.dataViewBookingHistoryLayout } 
                     header={ dataViewBookingHistoryHeader }
                     itemTemplate={ this.dataViewBookingHistoryItemTemplateDisplay } 
-                    rows= { this.dataViewBookingHistoryMaxNumberOfToolsPerPage }
+                    rows= { this.dataViewBookingHistoryMaxNumberPerPage }
                     sortOrder={ this.state.dataViewBookingHistorySortOrder }
                     sortField={ this.state.dataViewBookingHistorySortField }
                     paginator
@@ -354,8 +353,8 @@ export class DiyBookings extends React.Component<IPropsDiyBookings, IStateDiyBoo
                 { /* Display all bookings or not */ }
                 { this.renderBookingsTypeOfDisplay() }
 
-                { /* DiyBookings list */ }
-                <DiyToolsList
+                { /* DiyToolsComponent list */ }
+                <DiyToolsComponent
                     showInformations={false}
                     canChangeListContainer={false}
                     firstSelectedTool= { this.firstSelectedTool}
@@ -369,7 +368,7 @@ export class DiyBookings extends React.Component<IPropsDiyBookings, IStateDiyBoo
                     layout={ this.state.dataViewBookingHistoryLayout } 
                     header={ dataViewBookingHistoryHeader }
                     itemTemplate={ this.dataViewBookingHistoryItemTemplateDisplay } 
-                    rows= { this.dataViewBookingHistoryMaxNumberOfToolsPerPage }
+                    rows= { this.dataViewBookingHistoryMaxNumberPerPage }
                     sortOrder={ this.state.dataViewBookingHistorySortOrder }
                     sortField={ this.state.dataViewBookingHistorySortField }
                     paginator

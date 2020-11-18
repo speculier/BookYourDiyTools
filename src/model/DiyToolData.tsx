@@ -1,12 +1,25 @@
 
+import { DiyToolBookingInformations } from "./DiyBookingData";
+import { DiyToolRepairInformations } from "./DiyRepairData";
+
 /**
- * Main menu selections
+ * DiyTools categories
  */
-export enum MenuSelections {
-    NO_SELECTION,
-    SHOW_TOOLS,
-    SHOW_BOOKINGS,
-    SHOW_REPAIRS
+export enum DiyToolCategory {
+    SANDER='Ponceuse',            // PONCEUSE
+    HEDGE_TRIMMER='Taille haie',  // TAILLE_HAIE
+    DRILL='Perceuse'              // PERCEUSE
+}
+
+/**
+ * DiyTools states
+ */
+export enum DiyToolState {
+    NEW='Neuf',
+    GOOD_STATE='Bon état',
+    OLD='Vieux',
+    BAD_STATE='Mauvais état',
+    VERY_BAD_STATE='Très mauvais état'
 }
 
 /**
@@ -17,32 +30,9 @@ export interface DiyTools {
 }
 
 /**
- * DiyTools categories
- */
-export enum DiyToolCategory
-{
-    SANDER='Ponceuse',            // PONCEUSE
-    HEDGE_TRIMMER='Taille haie',  // TAILLE_HAIE
-    DRILL='Perceuse'              // PERCEUSE
-}
-
-/**
- * DiyTools states
- */
-export enum DiyToolState
-{
-    NEW='Neuf',
-    GOOD_STATE='Bon état',
-    OLD='Vieux',
-    BAD_STATE='Mauvais état',
-    VERY_BAD_STATE='Très mauvais état'
-}
-
-/**
  * DiyTool base class
  */
-export interface DiyTool
-{
+export interface DiyTool {
     // For listbox/dropdown components
     label: string;
 
@@ -50,14 +40,15 @@ export interface DiyTool
     stateInfos: DiyToolStateInformations;
     booked: boolean;
     currentBookingInfos?: DiyToolBookingInformations;
+    currentRepairInfos?: DiyToolRepairInformations;
     bookingHistory?: DiyToolBookingInformations[];
+    repairHistory?: DiyToolRepairInformations[];
 }
 
 /**
  * DiyTool general informations
  */
-export interface DiyToolGeneralInformations
-{
+export interface DiyToolGeneralInformations {
     tradeMark: string;
     category: DiyToolCategory;
     description: string;
@@ -69,21 +60,8 @@ export interface DiyToolGeneralInformations
 /**
  * DiyTool state informations (booking state, being repaired?, ...)
  */
-export interface DiyToolStateInformations
-{
+export interface DiyToolStateInformations {
     state: DiyToolState
     isBeingRepaired: boolean;
     isBroken: boolean;
-}
-
-/**
- * DiyTool booking informations
- */
-export interface DiyToolBookingInformations
-{
-    bookerFirstName: string;
-    bookerLastName: string;
-    bookerPhoneNumber: string;
-    bookerBackDate: Date;
-    bookerRating?: number;
 }

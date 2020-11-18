@@ -1,14 +1,25 @@
 import './BookYourDiyTools.css';
 
 import React from 'react';
-import { DiyTool, MenuSelections } from './model/DiyToolData';
-import { DiyToolsList } from './components/DiyToolsList';
+import { DiyTool } from './model/DiyToolData';
+import { DiyToolsComponent } from './components/DiyToolsComponent';
+import { DiyBookingsComponent } from './components/DiyBookingsComponent';
+import { DiyRepairsComponent } from './components/DiyRepairsComponent';
 
 import PrimereactStyle from '@bit/primefaces.primereact.internal.stylelinks';
 import { Panel } from '@bit/primefaces.primereact.panel';
 import { Menu } from '@bit/primefaces.primereact.menu';
 import { Button } from 'primereact/button';
-import { DiyBookings } from './components/DiyBookings';
+
+/**
+ * Main menu selections
+ */
+export enum MenuSelections {
+  NO_SELECTION,
+  SHOW_TOOLS,
+  SHOW_BOOKINGS,
+  SHOW_REPAIRS
+}
 
 /**
  * Props for BookYourDiyTools class
@@ -156,13 +167,13 @@ export class BookYourDiyTools extends React.Component<IProps, IState> {
         { /* DiyTool Main panel */ }
           <Panel header="Outils">
 
-            { /* DiyTools list */ }
-            <DiyToolsList
+            { /* DiyToolsComponent component */ }
+            <DiyToolsComponent
               showInformations={true}
               canChangeListContainer={true}
               firstSelectedTool= {0}
               onToolChanged= { ( selectedTool: DiyTool ) => { this.setSelectedTool( selectedTool ); } }
-            />
+          />
 
             <Button label=' + ' minLength={10} className='button-addttool'/><br/>
             <Button label=' - ' minLength={10} className='button-addttool'/>
@@ -188,8 +199,8 @@ export class BookYourDiyTools extends React.Component<IProps, IState> {
         { /* Booking History panel */ }
           <Panel header="Réservations">
 
-            { /* DiyBookings list */ }
-            <DiyBookings/>
+            { /* DiyBookingsComponent component */ }
+            <DiyBookingsComponent/>
 
           </Panel>
 
@@ -210,8 +221,11 @@ export class BookYourDiyTools extends React.Component<IProps, IState> {
         { /* Main menu */ }  
         { this.showMainMenu() }
 
-        { /* Booking History panel */ }
+        { /* Repair panel */ }
           <Panel header="Réparations">
+
+            { /* DiyRepairsComponent component */ }
+            <DiyRepairsComponent/>
 
           </Panel>
 
