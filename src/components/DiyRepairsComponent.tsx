@@ -123,14 +123,14 @@ export class DiyRepairsComponent extends React.Component<IPropsDiyRepairs, IStat
             return (
                 <div style={{ padding: '.5em' }} className='tool-label'>
                     <Panel header={ repairInfos.toolLabel } style={{ textAlign: 'center' }}>
-                        <div className='first-last-name'>
-                            { repairInfos.repairInfos.bookerFirstName + ' ' + repairInfos.bookingInfos.bookerLastName }
+                        <div className='repair-description'>
+                            { repairInfos.repairInfos.repairDescription }
                         </div>
-                        <div className='phone-number'>
-                            { repairInfos.repairInfos.bookerPhoneNumber }
+                        <div className='repair-company-name'>
+                            { repairInfos.repairInfos.repairCompanyName }
                         </div>
-                        <div className='back-date'>
-                            { repairInfos.repairInfos.bookerBackDate.toString() }
+                        <div className='repair-back-date'>
+                            { repairInfos.repairInfos.repairBackDate.toString() }
                         </div>
                         <hr className='ui-widget-content' style={{ borderTop: 0 }} />
                     </Panel>
@@ -138,13 +138,16 @@ export class DiyRepairsComponent extends React.Component<IPropsDiyRepairs, IStat
             );
         } else {
             return (
-                <div style={{ padding: '.5em' }} className='first-last-name'>
-                    <Panel header={ repairInfos.bookerFirstName + ' ' + repairInfos.bookerLastName } style={{ textAlign: 'center' }}>
-                        <div className='phone-number'>
-                            { repairInfos.bookerPhoneNumber }
+                <div style={{ padding: '.5em' }} className='tool-label'>
+                    <Panel header={ repairInfos.toolLabel } style={{ textAlign: 'center' }}>
+                        <div className='repair-description'>
+                            { repairInfos.repairDescription }
                         </div>
-                        <div className='back-date'>
-                            { repairInfos.bookerBackDate.toString() }
+                        <div className='repair-company-name'>
+                            { repairInfos.repairCompanyName }
+                        </div>
+                        <div className='repair-back-date'>
+                            { repairInfos.repairBackDate.toString() }
                         </div>
                         { this.renderRatingForGrid( repairInfos ) }
                         <hr className='ui-widget-content' style={{ borderTop: 0 }} />
@@ -182,23 +185,23 @@ export class DiyRepairsComponent extends React.Component<IPropsDiyRepairs, IStat
 
         if ( this.state.displayCurrentRepairs === true && typeof (repairInfos.repairInfos) !== 'undefined' ) {
             return (
-                <div className='bookings-list' style={ { padding: '2em', borderBottom: '1px solid #d9d9d9', display: 'flex' } }>
+                <div className='repairs-list' style={ { padding: '2em', borderBottom: '1px solid #d9d9d9', display: 'flex' } }>
                     <div className='tool-label' style={{ width: '25%' }}>
                         <img src="pi pi-star" alt={ repairInfos.repairInfos.toolLabel }/>
                     </div>
-                    <div className='booking-details' style={{ width: '75%' }}>
-                        <div className='booking-details-grid' style={{ display: 'flex', flexWrap: 'wrap' }}>
-                            <div className='booker-name-label' style={{ width: '33%' }}>Réservant:</div>
-                            <div className='booker-name-value' style={{ width: '33%' }}>
-                                { repairInfos.repairInfos.bookerFirstName + ' ' + repairInfos.repairInfos.bookerLastName }
+                    <div className='repair-details' style={{ width: '75%' }}>
+                        <div className='repair-details-grid' style={{ display: 'flex', flexWrap: 'wrap' }}>
+                            <div className='repair-description-label' style={{ width: '33%' }}>Description:</div>
+                            <div className='repair-description-value' style={{ width: '33%' }}>
+                                { repairInfos.repairInfos.repairDescription }
                             </div>
-                            <div className='phone-label' style={{ width: '33%' }}>Téléphone:</div>
-                            <div className='phone-value' style={{ width: '33%' }}>
-                                { repairInfos.repairInfos.bookerPhoneNumber }
+                            <div className='repair-company-name-label' style={{ width: '33%' }}>Entreprise:</div>
+                            <div className='repair-company-name-value' style={{ width: '33%' }}>
+                                { repairInfos.repairInfos.repairCompanyName }
                             </div>
-                            <div className='back-date-label' style={{ width: '33%' }}>Date de retour:</div>
-                            <div className='back-date-value' style={{ width: '33%' }}>
-                                { repairInfos.repairInfos.bookerBackDate.toString() }
+                            <div className='repair-back-date-label' style={{ width: '33%' }}>Date de retour:</div>
+                            <div className='repair-back-date-value' style={{ width: '33%' }}>
+                                { repairInfos.repairInfos.repairBackDate.toString() }
                             </div>
                         </div>
                     </div>
@@ -206,16 +209,18 @@ export class DiyRepairsComponent extends React.Component<IPropsDiyRepairs, IStat
             );
         } else if ( typeof (repairInfos) !== 'undefined' ) {
             return (
-                <div className='bookings-list' style={{ padding: '2em', borderBottom: '1px solid #d9d9d9', display: 'flex' }} >
-                    <div className='booker-name' style={{ width: '25%' }}>
-                        <img src="pi pi-star" alt={ repairInfos.bookerFirstName + ' ' + repairInfos.bookerLastName }/>
+                <div className='repairs-list' style={{ padding: '2em', borderBottom: '1px solid #d9d9d9', display: 'flex' }} >
+                    <div className='tool-label' style={{ width: '25%' }}>
+                        <img src="pi pi-star" alt={ repairInfos.toolLabel }/>
                     </div>
-                    <div className='booking-details' style={{ width: '75%' }}>
-                        <div className='booking-details-grid' style={{ display: 'flex', flexWrap: 'wrap' }}>
-                            <div className='back-date-label' style={{ width: '33%' }}>Date de retour:</div>
-                            <div className='back-date-value' style={{ width: '33%' }}>{ repairInfos.bookerBackDate.toString() }</div>
-                            <div className='phone-label' style={{ width: '33%' }}>Téléphone:</div>
-                            <div className='phone-value' style={{ width: '33%' }}>{ repairInfos.bookerPhoneNumber }</div>
+                    <div className='repairs-details' style={{ width: '75%' }}>
+                        <div className='repairs-details-grid' style={{ display: 'flex', flexWrap: 'wrap' }}>
+                            <div className='repair-description-label' style={{ width: '50%' }}>Description:</div>
+                            <div className='repair-description-value' style={{ width: '50%' }}>{ repairInfos.repairDescription }</div>
+                            <div className='repair-company-name-label' style={{ width: '50%' }}>Entreprise:</div>
+                            <div className='repair-company-name-value' style={{ width: '50%' }}>{ repairInfos.repairCompanyName }</div>
+                            <div className='repair-back-date-label' style={{ width: '50%' }}>Date de retour:</div>
+                            <div className='repair-back-date-value' style={{ width: '50%' }}>{ repairInfos.repairBackDate.toString() }</div>
                             { this.renderRatingForList( repairInfos ) } 
                         </div>
                     </div>
@@ -228,14 +233,14 @@ export class DiyRepairsComponent extends React.Component<IPropsDiyRepairs, IStat
 
     /**
     * dataViewRepairHistoryItemTemplateDisplay
-    * @param tool 
+    * @param repairInfos 
     * @param layout 
     */
-    dataViewRepairHistoryItemTemplateDisplay = ( repair: any, layout: 'list' | 'grid' ): JSX.Element => {
+    dataViewRepairHistoryItemTemplateDisplay = ( repairInfos: any, layout: 'list' | 'grid' ): JSX.Element => {
 
-        if ( repair ) {
-            if ( layout === 'list' ) return this.renderRepairHistoryListItem( repair );
-            else if ( layout === 'grid' ) return this.renderRepairHistoryGridItem( repair );
+        if ( repairInfos ) {
+            if ( layout === 'list' ) return this.renderRepairHistoryListItem( repairInfos );
+            else if ( layout === 'grid' ) return this.renderRepairHistoryGridItem( repairInfos );
         }
 
         return (<React.Fragment></React.Fragment>);
@@ -250,20 +255,18 @@ export class DiyRepairsComponent extends React.Component<IPropsDiyRepairs, IStat
 
         if (  this.state.displayCurrentRepairs === true ) {
             sortOptions = [
+                { label: 'Réparation', value: 'repairDescription' },
                 { label: 'Outil', value: 'toolLabel' },
-                { label: 'Prénom du contact', value: 'bookerFirstName' },
-                { label: 'NOM du contact', value: 'bookerLastName' },
-                { label: 'Téléphone', value: 'bookerPhoneNumber' },
-                { label: 'Date de retour', value: 'bookerBackDate' },
-                { label: 'Note de la réparation', value: 'bookerRating' }
+                { label: 'Entreprise', value: 'repairCompanyName' },
+                { label: 'Date de retour', value: 'repairBackDate' },
             ];
         } else {
             sortOptions = [
-                { label: 'Prénom du contact', value: 'bookerFirstName' },
-                { label: 'NOM du contact', value: 'bookerLastName' },
-                { label: 'Téléphone', value: 'bookerPhoneNumber' },
-                { label: 'Date de retour', value: 'bookerBackDate' },
-                { label: 'Note de la réparation', value: 'bookerRating' }
+                { label: 'Réparation', value: 'repairDescription' },
+                { label: 'Outil', value: 'toolLabel' },
+                { label: 'Entreprise', value: 'bookerPhoneNumber' },
+                { label: 'Date de retour', value: 'repairCompanyName' },
+                { label: 'Note de la réparation', value: 'repairRating' }
             ];
         }
 

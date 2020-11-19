@@ -24,15 +24,15 @@ export class DiyToolsStore {
 					stateInfos: { state: DiyToolState.VERY_BAD_STATE, isBeingRepaired: false, isBroken: true },
 					currentBookingInfos: { bookerFirstName: 'Anthony', bookerLastName: 'HAMEL', bookerPhoneNumber: '0612345678', bookerBackDate: new Date() },
 					bookingHistory: 
-					[ 
+					[
 						{ bookerFirstName: 'Sébastien', bookerLastName: 'PECULIER', bookerPhoneNumber: '0612345678', bookerBackDate: new Date(), bookerRating:0 },
 					],
-					currentRepairInfos: { contactFirstName: 'Ioan', contactLastName: 'LE GUE', repairCompanyName: 'AAAA', repairDate:  new Date(), repairRating:7 },
+					currentRepairInfos: { repairDescription: 'f', contactFirstName: 'Ioan', contactLastName: 'LE GUE', repairCompanyName: 'AAAA', repairBackDate: new Date(), repairRating:7 },
 					repairHistory: 
 					[ 
-						{ contactFirstName: 'Patrick', contactLastName: 'CHOUPIN', repairCompanyName: 'REPARTOUBONJOUR', repairDate:  new Date(), repairRating:10 },
-						{ contactFirstName: 'Stéphane', contactLastName: 'PERNOT', repairCompanyName: 'CADEPANNE44', repairDate:  new Date(), repairRating:5 },
-						{ contactFirstName: 'Olivier', contactLastName: 'LABONNE', repairCompanyName: 'Olvier LABONNE', repairDate:  new Date(), repairRating:2 },
+						{ repairDescription: 'c', contactFirstName: 'Patrick', contactLastName: 'CHOUPIN', repairCompanyName: 'REPARTOUBONJOUR', repairBackDate: new Date(), repairRating:10 },
+						{ repairDescription: 'd', contactFirstName: 'Stéphane', contactLastName: 'PERNOT', repairCompanyName: 'CADEPANNE44', repairBackDate: new Date(), repairRating:5 },
+						{ repairDescription: 'e', contactFirstName: 'Olivier', contactLastName: 'LABONNE', repairCompanyName: 'Olvier LABONNE', repairBackDate:  new Date(), repairRating:2 },
 					]
 				},
 				{ label:'Taille haie 2',
@@ -42,7 +42,7 @@ export class DiyToolsStore {
 				currentBookingInfos: { bookerFirstName: 'Christohe', bookerLastName: 'COUTINEAU', bookerPhoneNumber: '0612345678', bookerBackDate: new Date() },
 				repairHistory: 
 					[ 
-						{ contactFirstName: 'Sébastien', contactLastName: 'PECULIER', repairCompanyName: 'DEPANNE2000', repairDate:  new Date(), repairRating:1 },
+						{ repairDescription: 'b', contactFirstName: 'Sébastien', contactLastName: 'PECULIER', repairCompanyName: 'DEPANNE2000', repairBackDate:  new Date(), repairRating:1 },
 					]
 			},
 				{ label:'Taille haie 3',
@@ -68,7 +68,7 @@ export class DiyToolsStore {
 							{ bookerFirstName: 'Freddy', bookerLastName: 'ROBERGE', bookerPhoneNumber: '061111111111', bookerBackDate: new Date(), bookerRating:5 },
 							{ bookerFirstName: 'Guillaume', bookerLastName: 'BARANGER', bookerPhoneNumber: '073333333333', bookerBackDate: new Date(), bookerRating:3 },
 						],
-					currentRepairInfos: { contactFirstName: 'Johan', contactLastName: 'PECOT', repairCompanyName: 'BBBBBBBB', repairDate:  new Date(), repairRating:7 },
+					currentRepairInfos: { repairDescription: 'a', contactFirstName: 'Johan', contactLastName: 'PECOT', repairCompanyName: 'BBBBBBBB', repairBackDate:  new Date(), repairRating:7 },
 				}
 			  ]  
 		}

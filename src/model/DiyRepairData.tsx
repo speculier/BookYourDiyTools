@@ -20,10 +20,11 @@ export interface DiyRepair {
  * DiyTool repair informations
  */
 export interface DiyToolRepairInformations {
+    repairDescription: string;
     repairCompanyName: string;
     contactFirstName: string;
     contactLastName: string;
-    repairDate: Date;
+    repairBackDate: Date;
     repairRating?: number;
 }
 

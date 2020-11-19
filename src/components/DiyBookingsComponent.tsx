@@ -228,14 +228,14 @@ export class DiyBookingsComponent extends React.Component<IPropsDiyBookings, ISt
 
     /**
     * dataViewBookingHistoryItemTemplateDisplay
-    * @param tool 
+    * @param bookingInfos 
     * @param layout 
     */
-    dataViewBookingHistoryItemTemplateDisplay = ( tool: any, layout: 'list' | 'grid' ): JSX.Element => {
+    dataViewBookingHistoryItemTemplateDisplay = ( bookingInfos: any, layout: 'list' | 'grid' ): JSX.Element => {
 
-        if ( tool ) {
-            if ( layout === 'list' ) return this.renderBookingHistoryListItem( tool );
-            else if ( layout === 'grid' ) return this.renderBookingHistoryGridItem( tool );
+        if ( bookingInfos ) {
+            if ( layout === 'list' ) return this.renderBookingHistoryListItem( bookingInfos );
+            else if ( layout === 'grid' ) return this.renderBookingHistoryGridItem( bookingInfos );
         }
 
         return (<React.Fragment></React.Fragment>);
@@ -255,7 +255,6 @@ export class DiyBookingsComponent extends React.Component<IPropsDiyBookings, ISt
                 { label: 'NOM', value: 'bookerLastName' },
                 { label: 'Téléphone', value: 'bookerPhoneNumber' },
                 { label: 'Date de retour', value: 'bookerBackDate' },
-                { label: 'Note utilisateur', value: 'bookerRating' }
             ];
         } else {
             sortOptions = [
