@@ -3,30 +3,26 @@ import { DiyToolBookingInformations } from "./DiyBookingData";
 import { DiyToolRepairInformations } from "./DiyRepairData";
 
 /**
- * DiyTools categories
+ * DiyTool categories
  */
-export enum DiyToolCategory {
-    SANDER='Ponceuse',            // PONCEUSE
-    HEDGE_TRIMMER='Taille haie',  // TAILLE_HAIE
-    DRILL='Perceuse'              // PERCEUSE
+export interface DiyToolCategory {
+    id: number;
+    label: string;
 }
 
 /**
- * DiyTools states
+ * DiyTool states
  */
-export enum DiyToolState {
-    NEW='Neuf',
-    GOOD_STATE='Bon état',
-    OLD='Vieux',
-    BAD_STATE='Mauvais état',
-    VERY_BAD_STATE='Très mauvais état'
+export interface DiyToolState {
+    id: number;
+    label: string;
 }
 
 /**
  * DiyTools list
  */
 export interface DiyTools {
-    diyTools: DiyTool[]
+    diyTools: DiyTool[];
 }
 
 /**
@@ -53,7 +49,6 @@ export interface DiyToolGeneralInformations {
     category: DiyToolCategory;
     description: string;
     instructionsForUse?: string;
-    //instructionVideo : 
     place: string;
 }
 
@@ -61,7 +56,7 @@ export interface DiyToolGeneralInformations {
  * DiyTool state informations (booking state, being repaired?, ...)
  */
 export interface DiyToolStateInformations {
-    state: DiyToolState
+    state: DiyToolState;
     isBeingRepaired: boolean;
     isBroken: boolean;
 }

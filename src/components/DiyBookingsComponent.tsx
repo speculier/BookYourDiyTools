@@ -11,38 +11,36 @@ import { DataView, DataViewLayoutOptions } from '@bit/primefaces.primereact.data
 import { Panel } from '@bit/primefaces.primereact.panel';
 import { Rating } from '@bit/primefaces.primereact.rating';
 import { InputSwitch } from 'primereact/components/inputswitch/InputSwitch';
+import { makeObservable, observable } from 'mobx';
+import { observer } from 'mobx-react';
 
 /**
  * Props for DiyBookingsComponent class
  */
-interface IPropsDiyBookings { }
+ interface IPropsDiyBookings { }
 
-/**
- * States for DiyBookingsComponent class
- */
-interface IStateDiyBookings {
-    selectedDiyTool: DiyTool;
-    displayCurrentBookings: boolean;
-    dataViewBookingHistoryCurrentBooking?: DiyToolBookingInformations;
-    dataViewBookingHistoryLayout: string;
-    dataViewBookingHistorySortKey: any;
-    dataViewBookingHistorySortOrder: any;
-    dataViewBookingHistorySortField: any;
-    onDataViewBookingHistoryOnSortChange: ( event: any ) => void;
-    onDataViewBookingHistoryItemTemplateDisplay: ( tool: any, layout: 'list' | 'grid' ) => JSX.Element;
-}
+const firstSelectedTool:number = 0;
+const defaultDisplayAllCurrentBookings = false;
+const dataViewBookingHistoryMaxNumberPerPage: number = 10;
 
 /**
  * DiyBookingsComponent class
 */
-export class DiyBookingsComponent extends React.Component<IPropsDiyBookings, IStateDiyBookings> {
+@observer export class DiyBookingsComponent extends React.Component< IPropsDiyBookings, {} > {
      
     private diyStore:DiyToolsStore = new DiyToolsStore();
-    private diyTools: DiyTools;
-    private dataViewBookingHistoryMaxNumberPerPage: number=10;
-    private defaultTemplateDisplay:string = 'list';
-    private firstSelectedTool:number = 0;
-    private defaultDisplayAllCurrentBookings = false;
+
+    @observable private diyTools: DiyTools = {  diyTools: []  };
+
+    @observable private selectedDiyTool: DiyTool | undefined;
+    @observable private displayCurrentBookings: boolean;
+    @observable private dataViewBookingHistoryCurrentBooking?: DiyToolBookingInformations;
+    @observable private dataViewBookingHistoryLayout: string | undefined;
+    @observable private dataViewBookingHistorySortKey: any;
+    @observable private dataViewBookingHistorySortOrder: any;
+    @observable private dataViewBookingHistorySortField: any;
+    @observable private onDataViewBookingHistoryOnSortChange: ( event: any ) => void;
+    @observable private onDataViewBookingHistoryItemTemplateDisplay: ( tool: any, layout: 'list' | 'grid' ) => JSX.Element;
 
     /**
      * constructor
@@ -52,47 +50,42 @@ export class DiyBookingsComponent extends React.Component<IPropsDiyBookings, ISt
         
         // Props
         super(props);
+        
+        // New! Needed since mobx 6
+        // https://stackoverflow.com/questions/67034998/component-not-re-rendering-when-updating-the-state-in-mobx
+        makeObservable(this);
 
         // Initialize Diy list
-        this.diyTools = this.diyStore.getAllTools();
+        this.diyStore.getAllDiyTools().then( (result: DiyTool[]) => {
+            this.diyTools.diyTools = result;
 
-        // States
-        this.state = { 
-            // Selected tool in the main list
-            selectedDiyTool: this.diyTools.diyTools[this.firstSelectedTool],
+            this.selectedDiyTool = this.diyTools ? this.diyTools.diyTools[firstSelectedTool] : undefined ;
+            this.dataViewBookingHistoryCurrentBooking = typeof this.selectedDiyTool === undefined ? undefined : this.diyTools.diyTools[firstSelectedTool].currentBookingInfos;
+        } );
 
-            // Default bookings display
-            displayCurrentBookings: this.defaultDisplayAllCurrentBookings,
-
-            dataViewBookingHistoryLayout: this.defaultTemplateDisplay,
-            dataViewBookingHistorySortKey: null,
-            dataViewBookingHistorySortOrder: null,
-            dataViewBookingHistorySortField: null,
-            dataViewBookingHistoryCurrentBooking: typeof this.diyTools.diyTools[this.firstSelectedTool].currentBookingInfos === undefined ? undefined : this.diyTools.diyTools[this.firstSelectedTool].currentBookingInfos,
-            onDataViewBookingHistoryOnSortChange: this.dataViewBookingHistoryOnSortChange,
-            onDataViewBookingHistoryItemTemplateDisplay: this.dataViewBookingHistoryItemTemplateDisplay
-        };
+        this.dataViewBookingHistorySortKey = null;
+        this.dataViewBookingHistorySortOrder = null;
+        this.dataViewBookingHistorySortField = null;
+        this.displayCurrentBookings = defaultDisplayAllCurrentBookings;
+        this.onDataViewBookingHistoryOnSortChange = this.dataViewBookingHistoryOnSortChange;
+        this.onDataViewBookingHistoryItemTemplateDisplay = this.dataViewBookingHistoryItemTemplateDisplay;
     }
 
     /**
      * dataViewBookingHistoryOnSortChange
      * @param event 
      */
-    dataViewBookingHistoryOnSortChange = ( event: any ) => {
+     private dataViewBookingHistoryOnSortChange = ( event: any ) => {
         const value = event.value;
 
         if ( value.indexOf('!') === 0 ) {
-            this.setState( {
-                dataViewBookingHistorySortOrder: -1,
-                dataViewBookingHistorySortField: value.substring( 1, value.length ),
-                dataViewBookingHistorySortKey: value
-            } );
+            this.dataViewBookingHistorySortOrder = -1;
+            this.dataViewBookingHistorySortField = value.substring( 1, value.length );
+            this.dataViewBookingHistorySortKey = value;
         } else {
-            this.setState( {
-                dataViewBookingHistorySortOrder: 1,
-                dataViewBookingHistorySortField: value,
-                dataViewBookingHistorySortKey: value
-            } );
+            this.dataViewBookingHistorySortOrder = 1;
+            this.dataViewBookingHistorySortField = value;
+            this.dataViewBookingHistorySortKey = value;
         }
     }
 
@@ -100,7 +93,7 @@ export class DiyBookingsComponent extends React.Component<IPropsDiyBookings, ISt
      * renderRatingForGrid
      * @param infos 
      */
-    renderRatingForGrid = ( infos : DiyToolBookingInformations ): JSX.Element => {
+     private renderRatingForGrid = ( infos : DiyToolBookingInformations ): JSX.Element => {
 
         if ( typeof infos.bookerRating !== 'undefined' ) {
             return (
@@ -117,9 +110,9 @@ export class DiyBookingsComponent extends React.Component<IPropsDiyBookings, ISt
     * renderBookingHistoryGridItem
     * @param bookingInfos 
     */
-    renderBookingHistoryGridItem = ( bookingInfos: any ): JSX.Element => {
+     private renderBookingHistoryGridItem = ( bookingInfos: any ): JSX.Element => {
 
-        if ( this.state.displayCurrentBookings ) {
+        if ( this.displayCurrentBookings ) {
             return (
                 <div style={{ padding: '.5em' }} className='tool-label'>
                     <Panel header={ bookingInfos.toolLabel } style={{ textAlign: 'center' }}>
@@ -158,7 +151,7 @@ export class DiyBookingsComponent extends React.Component<IPropsDiyBookings, ISt
      * renderRatingForList
      * @param infos 
      */
-    renderRatingForList = ( infos : DiyToolBookingInformations ): JSX.Element => {
+     private renderRatingForList = ( infos : DiyToolBookingInformations ): JSX.Element => {
 
         if ( typeof infos.bookerRating !== 'undefined' ) {
             return (
@@ -178,9 +171,9 @@ export class DiyBookingsComponent extends React.Component<IPropsDiyBookings, ISt
     * renderBookingHistoryListItem
     * @param bookingInfos 
     */
-    renderBookingHistoryListItem = ( bookingInfos : any ): JSX.Element => {
+     private renderBookingHistoryListItem = ( bookingInfos : any ): JSX.Element => {
 
-        if ( this.state.displayCurrentBookings === true && typeof (bookingInfos.bookingInfos) !== 'undefined' ) {
+        if ( this.displayCurrentBookings === true && typeof (bookingInfos.bookingInfos) !== 'undefined' ) {
             return (
                 <div className='bookings-list' style={ { padding: '2em', borderBottom: '1px solid #d9d9d9', display: 'flex' } }>
                     <div className='tool-label' style={{ width: '25%' }}>
@@ -231,7 +224,7 @@ export class DiyBookingsComponent extends React.Component<IPropsDiyBookings, ISt
     * @param bookingInfos 
     * @param layout 
     */
-    dataViewBookingHistoryItemTemplateDisplay = ( bookingInfos: any, layout: 'list' | 'grid' ): JSX.Element => {
+     private dataViewBookingHistoryItemTemplateDisplay = ( bookingInfos: any, layout: 'list' | 'grid' ): JSX.Element => {
 
         if ( bookingInfos ) {
             if ( layout === 'list' ) return this.renderBookingHistoryListItem( bookingInfos );
@@ -244,11 +237,11 @@ export class DiyBookingsComponent extends React.Component<IPropsDiyBookings, ISt
     /**
      * renderBookingHistoryHeader
      */
-    renderBookingHistoryHeader = () => {
+    private renderBookingHistoryHeader = () => {
 
         let sortOptions;
 
-        if (  this.state.displayCurrentBookings === true ) {
+        if (  this.displayCurrentBookings === true ) {
             sortOptions = [
                 { label: 'Outil', value: 'toolLabel' },
                 { label: 'Prénom', value: 'bookerFirstName' },
@@ -271,15 +264,15 @@ export class DiyBookingsComponent extends React.Component<IPropsDiyBookings, ISt
                 <div className='bookings-dropdown-sort-type' style={{ textAlign: 'left', float: 'left' }}>
                     <Dropdown
                         options={ sortOptions }
-                        value={ this.state.dataViewBookingHistorySortKey }
+                        value={ this.dataViewBookingHistorySortKey }
                         placeholder='Trier par'
                         onChange={ this.dataViewBookingHistoryOnSortChange }
                     />
                 </div>
                 <div className='bookings-view-type' style={{ textAlign: 'right' }}>
                     <DataViewLayoutOptions
-                        layout={ this.state.dataViewBookingHistoryLayout }
-                        onChange={ e => this.setState( { dataViewBookingHistoryLayout: e.value } ) }
+                        layout={ this.dataViewBookingHistoryLayout }
+                        onChange={ (e) => { this.dataViewBookingHistoryLayout = e.value } }
                     />
                 </div>
             </div>
@@ -289,13 +282,13 @@ export class DiyBookingsComponent extends React.Component<IPropsDiyBookings, ISt
     /**
      * renderBookingsTypeOfDisplay
      */
-    renderBookingsTypeOfDisplay = () : JSX.Element => {
+     private renderBookingsTypeOfDisplay = () : JSX.Element => {
         return (
             <div className="bookings-switch-type-of-display">
                 <label>Afficher les réservations en cours:</label><br/>
                 <InputSwitch 
-                    checked={ this.state.displayCurrentBookings } 
-                    onChange={ (e) => this.setState( { displayCurrentBookings: e.value } ) } 
+                    checked={ this.displayCurrentBookings } 
+                    onChange={ (e) =>{ this.displayCurrentBookings = e.value } } 
                 /><br/>
             </div>
         );
@@ -304,89 +297,98 @@ export class DiyBookingsComponent extends React.Component<IPropsDiyBookings, ISt
     /**
      * renderCurrentBookings
      */
-    renderCurrentBookings = (dataViewBookingHistoryHeader: any): JSX.Element => { 
+     private renderCurrentBookings = (dataViewBookingHistoryHeader: any): JSX.Element => { 
  
         let allBookings:DiyBookings= { bookings: [] };
 
         // Concatenate all bookings of each tool in one array
-        this.diyTools.diyTools.forEach(element => {
-            let currentBooking:DiyBooking = {
-                bookingInfos: element.currentBookingInfos as DiyToolBookingInformations,
-                generalInfos: element.generalInfos,
-                toolLabel: element.label
-            }; 
+        if (this.diyTools) {
+            this.diyTools.diyTools.forEach(element => {
+                let currentBooking:DiyBooking = {
+                    bookingInfos: element.currentBookingInfos as DiyToolBookingInformations,
+                    generalInfos: element.generalInfos,
+                    toolLabel: element.label
+                }; 
 
-            allBookings.bookings.push(currentBooking);
-        });
+                allBookings.bookings.push(currentBooking);
+            });
 
-        return (
-            <div className='bookings'>
-
-                { /* Display all bookings or not */ }
-                { this.renderBookingsTypeOfDisplay() }
-
-                { /* Booking list per tools */ }   
-                <label>Liste de toutes les réservations :</label><br/>       
-                <DataView 
-                    value={ allBookings.bookings } 
-                    layout={ this.state.dataViewBookingHistoryLayout } 
-                    header={ dataViewBookingHistoryHeader }
-                    itemTemplate={ this.dataViewBookingHistoryItemTemplateDisplay } 
-                    rows= { this.dataViewBookingHistoryMaxNumberPerPage }
-                    sortOrder={ this.state.dataViewBookingHistorySortOrder }
-                    sortField={ this.state.dataViewBookingHistorySortField }
-                    paginator
-                />
-            </div>
-        );
+            return (
+                <div className='bookings'>
+    
+                    { /* Display all bookings or not */ }
+                    { this.renderBookingsTypeOfDisplay() }
+    
+                    { /* Booking list per tools */ }   
+                    <label>Liste de toutes les réservations :</label><br/>       
+                    <DataView 
+                        value={ allBookings.bookings } 
+                        layout={ this.dataViewBookingHistoryLayout } 
+                        header={ dataViewBookingHistoryHeader }
+                        itemTemplate={ this.dataViewBookingHistoryItemTemplateDisplay } 
+                        rows= { dataViewBookingHistoryMaxNumberPerPage }
+                        sortOrder={ this.dataViewBookingHistorySortOrder }
+                        sortField={ this.dataViewBookingHistorySortField }
+                        paginator
+                    />
+                </div>
+            );
+        } else {
+            return <React.Fragment></React.Fragment>
+        }
     }
 
     /**
      * renderBookingsPerTools
      */
-    renderBookingsPerTools = (dataViewBookingHistoryHeader: any): JSX.Element => { 
+     private renderBookingsPerTools = (dataViewBookingHistoryHeader: any): JSX.Element => { 
  
-        return (
-            <div className='bookings'>
+        if ( this.selectedDiyTool ) {
+            return (
+                <div className='bookings'>
 
-                { /* Display all bookings or not */ }
-                { this.renderBookingsTypeOfDisplay() }
+                    { /* Display all bookings or not */ }
+                    { this.renderBookingsTypeOfDisplay() }
 
-                { /* DiyToolsComponent list */ }
-                <DiyToolsComponent
-                    showInformations={false}
-                    canChangeListContainer={false}
-                    firstSelectedTool= { this.firstSelectedTool}
-                    onToolChanged= { ( selectedTool: DiyTool ) => { this.setState( { selectedDiyTool: selectedTool } ); } }
-                />
-                               
-                { /* Booking list per tools */ }
-                <label>Liste des réservations passées pour cet outil :</label><br/>
-                <DataView 
-                    value={ this.state.selectedDiyTool.bookingHistory } 
-                    layout={ this.state.dataViewBookingHistoryLayout } 
-                    header={ dataViewBookingHistoryHeader }
-                    itemTemplate={ this.dataViewBookingHistoryItemTemplateDisplay } 
-                    rows= { this.dataViewBookingHistoryMaxNumberPerPage }
-                    sortOrder={ this.state.dataViewBookingHistorySortOrder }
-                    sortField={ this.state.dataViewBookingHistorySortField }
-                    paginator
-                />
-            </div>
-        );
+                    { /* DiyToolsComponent list */ }
+                    <DiyToolsComponent
+                        showInformations={false}
+                        canChangeListContainer={false}
+                        firstSelectedTool= { firstSelectedTool}
+                        onToolChanged= { ( selectedTool: DiyTool ) => { this.selectedDiyTool = selectedTool } }
+                    />
+                                
+                    { /* Booking list per tools */ }
+                    <label>Liste des réservations passées pour cet outil :</label><br/>
+                    <DataView 
+                        value={ this.selectedDiyTool.bookingHistory } 
+                        layout={ this.dataViewBookingHistoryLayout } 
+                        header={ dataViewBookingHistoryHeader }
+                        itemTemplate={ this.dataViewBookingHistoryItemTemplateDisplay } 
+                        rows= { dataViewBookingHistoryMaxNumberPerPage }
+                        sortOrder={ this.dataViewBookingHistorySortOrder }
+                        sortField={ this.dataViewBookingHistorySortField }
+                        paginator
+                    />
+                </div>
+            );
+        } else {
+            return <React.Fragment></React.Fragment>
+        }            
     }
 
     /**
      * render method
      */
-    render = (): JSX.Element => { 
-        const dataViewBookingHistoryHeader = this.renderBookingHistoryHeader();
-
-        if ( this.state.displayCurrentBookings === true ) {
-            return this.renderCurrentBookings(dataViewBookingHistoryHeader);
-        } else {
-            return this.renderBookingsPerTools(dataViewBookingHistoryHeader);
-        }  
+    public render (): JSX.Element { 
+        return ( <div>
+            {
+                this.displayCurrentBookings 
+                ? this.renderCurrentBookings(this.renderBookingHistoryHeader()) 
+                : this.renderBookingsPerTools(this.renderBookingHistoryHeader())
+            }
+        </div>
+         );
      }
  }
  

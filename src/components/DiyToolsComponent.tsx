@@ -8,6 +8,8 @@ import { Dropdown } from '@bit/primefaces.primereact.dropdown';
 import { SelectButton } from 'primereact/selectbutton';
 import { InputSwitch } from 'primereact/inputswitch';
 import { TabPanel, TabView } from 'primereact/components/tabview/TabView';
+import { makeObservable, observable } from 'mobx';
+import { observer } from 'mobx-react';
 
 /**
  * Props for DiyTools class
@@ -19,25 +21,21 @@ interface IPropsDiyTools {
     onToolChanged: ( selectedTool: DiyTool ) => void;
 }
 
-/**
- * States for DiyTools class
- */
-interface IStateDiyTools {
-    selectedDiyTool: DiyTool;
-    selectedTab: number;
-    displayToolsInAFlatList: boolean;
-}
+const defaultDisplayToolsInAFlatList:boolean = false;
+const defaultFirstSelectedTool:number = 0;
+const defaultFirstSelectedTab:number = 0;
 
 /**
  * DiyToolsComponent class
  */
-export class DiyToolsComponent extends React.Component<IPropsDiyTools, IStateDiyTools> {
+@observer export class DiyToolsComponent extends React.Component< IPropsDiyTools, {} > {
     
-    private defaultFirstSelectedTool:number = 0;
-    private defaultFirstSelectedTab:number = 0;
-    private defaultDisplayToolsInAFlatList:boolean = false;
     private diyStore:DiyToolsStore = new DiyToolsStore();
-    private diyTools: DiyTools;
+    
+    @observable private diyTools: DiyTools = { diyTools: [] };
+    @observable private selectedDiyTool: DiyTool | undefined;
+    @observable private selectedTab: number;
+    @observable private displayToolsInAFlatList: boolean;
 
     /**
      * constructor
@@ -48,44 +46,36 @@ export class DiyToolsComponent extends React.Component<IPropsDiyTools, IStateDiy
         // Props
         super(props);
 
+        // New! Needed since mobx 6
+        // https://stackoverflow.com/questions/67034998/component-not-re-rendering-when-updating-the-state-in-mobx
+        makeObservable(this);
+
         // Initialize Diy list
-        this.diyTools = this.diyStore.getAllTools();
+        this.diyStore.getAllDiyTools().then( (result: DiyTool[]) => {
+            this.diyTools.diyTools = result;
 
-        // States
-        this.state = { 
-            
-            // Selected tool in the main list
-            selectedDiyTool: typeof (this.props.firstSelectedTool) === undefined
-                               ? this.diyTools.diyTools[this.defaultFirstSelectedTool]
-                               : this.diyTools.diyTools[this.props.firstSelectedTool as number],
+            this.selectedDiyTool = typeof (this.props.firstSelectedTool) === undefined
+             ? this.diyTools.diyTools[defaultFirstSelectedTool]
+             : this.diyTools.diyTools[this.props.firstSelectedTool as number];
+        } );
 
-            // Selected tab infos
-            selectedTab: this.defaultFirstSelectedTab,
-
-            // Default type of display (false = dropdown, true = flat listox)
-            displayToolsInAFlatList: this.defaultDisplayToolsInAFlatList
-          };
-    }
-
-    /**
-     * setSelectedTab
-     * @param e 
-     */
-    setSelectedTab = (e: any): void => {
-        this.setState({ selectedTab:e.index } );
+        this.selectedTab = defaultFirstSelectedTab;
+        this.displayToolsInAFlatList = defaultDisplayToolsInAFlatList;
     }
 
     /**
      * renderListTypeOfDisplay
      */
-    renderListTypeOfDisplay = () : JSX.Element => {
+     private renderListTypeOfDisplay = () : JSX.Element => {
         return (
             <div className="diytool-switch-type-of-list">
                 <label>Afficher dans une liste à plat:</label><br/>
+                { 
                 <InputSwitch 
-                    checked={ this.state.displayToolsInAFlatList } 
-                    onChange={ (e) => this.setState( { displayToolsInAFlatList: e.value } ) } 
-                /><br/>
+                    checked={ this.displayToolsInAFlatList } 
+                    onChange={ (e) => { this.displayToolsInAFlatList = e.value; } } 
+                /> }              
+                <br/>
             </div>
         );
     }
@@ -93,42 +83,47 @@ export class DiyToolsComponent extends React.Component<IPropsDiyTools, IStateDiy
     /**
      * renderTabView
      */
-    renderTabView = (): JSX.Element => {
-        return (
-            <div className="diytool-taview">
-                <TabView 
-                    className="tabview-custom" 
-                    activeIndex={ this.state.selectedTab } 
-                    onTabChange={ (e) => { this.setSelectedTab(e); } }>
-            
-                    { /* DiyTools general informations */ }
-                    <TabPanel header="Informations de l'outil" leftIcon="pi pi-calendar" >
-                    <div className="tab-ibformations">
-                        <b><label  htmlFor="label">{ this.state.selectedDiyTool.label }</label></b><br/>
-                        <SelectButton value={ this.state.selectedDiyTool.generalInfos.category } 
-                                    options={ Object.values(DiyToolCategory) } /><br/>
-                        <label htmlFor="label-description">Description: { this.state.selectedDiyTool.generalInfos.description }</label><br/>
-                        <label htmlFor="label-trademark">Marque: { this.state.selectedDiyTool.generalInfos.tradeMark }</label><br/>
-                        <label htmlFor="label-place">Emplacement: { this.state.selectedDiyTool.generalInfos.place }</label><br/>
-                        </div>
-                    </TabPanel>
+     private renderTabView = (): JSX.Element => {
 
-                    { /* Instruction for use */ }
-                    <TabPanel header="Notice d'utilisation" leftIcon="pi pi-calendar"
-                        disabled={ (typeof this.state.selectedDiyTool.generalInfos.instructionsForUse === undefined) ? true : false }>
-                    <div className="tab-instructions">
-                        <p> { this.state.selectedDiyTool.generalInfos.instructionsForUse }</p>
-                    </div>
-                    </TabPanel>
-                </TabView>
-            </div>
-        );
+        if ( this.selectedDiyTool ) {
+            return (
+                <div className="diytool-taview">
+                    {<TabView 
+                        className="tabview-custom" 
+                        activeIndex={ this.selectedTab } 
+                        onTabChange={ (e) => { this.selectedTab = e.index } }>
+                
+                        { /* DiyTools general informations */ }
+                        <TabPanel header="Informations de l'outil" leftIcon="pi pi-calendar" >
+                        <div className="tab-ibformations">
+                            <b><label  htmlFor="label">{ this.selectedDiyTool.label }</label></b><br/>
+{/*                             <SelectButton value={ this.selectedDiyTool.generalInfos.category } 
+                                        options={ Object.values(DiyToolCategory) } /><br/> */}
+                            <label htmlFor="label-description">Description: { this.selectedDiyTool.generalInfos.description }</label><br/>
+                            <label htmlFor="label-trademark">Marque: { this.selectedDiyTool.generalInfos.tradeMark }</label><br/>
+                            <label htmlFor="label-place">Emplacement: { this.selectedDiyTool.generalInfos.place }</label><br/>
+                            </div>
+                        </TabPanel>
+
+                        { /* Instruction for use */ }
+                        <TabPanel header="Notice d'utilisation" leftIcon="pi pi-calendar"
+                            disabled={ (typeof this.selectedDiyTool.generalInfos.instructionsForUse === undefined) ? true : false }>
+                        <div className="tab-instructions">
+                            <p> { this.selectedDiyTool.generalInfos.instructionsForUse }</p>
+                        </div>
+                        </TabPanel>
+                    </TabView>}
+                </div>
+            );
+        } else {
+            return <React.Fragment></React.Fragment>;
+        }
     }
 
     /**
      * renderWithFlatListbox
      */
-    renderWithFlatListbox = () : JSX.Element => {
+    renderWithFlatListbox () : JSX.Element {
 
         return (
             <div className="diytools-panel">
@@ -139,10 +134,10 @@ export class DiyToolsComponent extends React.Component<IPropsDiyTools, IStateDiy
                 <div className="diytool-listbox">
                     <label>Matériel :</label><br/>
                     <ListBox
-                        //key = { this.state.selectedDiyTool.label }
-                        value = { this.state.selectedDiyTool }
+                        optionLabel = { "label" }
+                        value = { this.selectedDiyTool }
                         options={ this.diyTools.diyTools }
-                        onChange={ (e) => { this.setState( { selectedDiyTool:e.value } ); } }
+                        onChange={ (e) => { this.selectedDiyTool = e.value; console.log(this.selectedDiyTool); } }
                     /><br/>
                 </div>
 
@@ -150,7 +145,7 @@ export class DiyToolsComponent extends React.Component<IPropsDiyTools, IStateDiy
                 <hr/>
 
                 { /* Tabview for current diytool display */ }
-                { this.renderTabView() } 
+                { this.props.showInformations === true ? this.renderTabView() : React.Fragment } 
             </div>
             );
     }
@@ -158,8 +153,8 @@ export class DiyToolsComponent extends React.Component<IPropsDiyTools, IStateDiy
     /**
      * renderWithDropdown
      */
-    renderWithDropdown = (): JSX.Element => {
-
+     private renderWithDropdown (): JSX.Element {
+    
         return (
             <div className="diytools-panel-">
                 { /* Change gui component for list */ }
@@ -169,11 +164,11 @@ export class DiyToolsComponent extends React.Component<IPropsDiyTools, IStateDiy
                 <div className="diytool-dropdown">
                     <label>Matériel :</label><br/>
                     <Dropdown
-                        //key = { this.state.selectedDiyTool.label }
-                        value = { this.state.selectedDiyTool }
+                        placeholder='Matériel :'
+                        value = { this.selectedDiyTool }
+                        optionLabel = { 'label' }
                         options={ this.diyTools.diyTools }
-                        //onChange={ (e) => { this.setState( { selectedDiyTool:e.value } ); } }
-                        onChange={ (e) => { this.setState( { selectedDiyTool:e.value } ); this.props.onToolChanged( e.value ); } }
+                        onChange={ (e) => { this.selectedDiyTool = e.value; } }
                     /><br/>
                 </div>
 
@@ -189,12 +184,13 @@ export class DiyToolsComponent extends React.Component<IPropsDiyTools, IStateDiy
     /**
      * render method
      */
-    render = (): JSX.Element => { 
+    public render (): JSX.Element { 
 
-        if ( this.state.displayToolsInAFlatList === true ) {
-            return this.renderWithFlatListbox();
-        } else {
-            return this.renderWithDropdown();
-        }
+        return ( <div>
+            {
+                this.selectedDiyTool && ( ( this.displayToolsInAFlatList === true ) ? this.renderWithFlatListbox() : this.renderWithDropdown() )
+            }
+        </div>
+         );
     }
 }

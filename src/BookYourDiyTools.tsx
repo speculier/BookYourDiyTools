@@ -9,7 +9,13 @@ import { DiyRepairsComponent } from './components/DiyRepairsComponent';
 import PrimereactStyle from '@bit/primefaces.primereact.internal.stylelinks';
 import { Panel } from '@bit/primefaces.primereact.panel';
 import { Menu } from '@bit/primefaces.primereact.menu';
-import { Button } from 'primereact/button';
+//import { Button } from 'primereact/button';
+import { observer } from 'mobx-react';
+import { makeObservable, observable } from 'mobx';
+import { DiyAddDiyToolComponent } from './components/DiyAddDiyToolComponent';
+import { Dialog } from '@bit/primefaces.primereact.dialog';
+import { Button } from '@bit/primefaces.primereact.button';
+//import { Dialog } from 'primereact/dialog';
 
 /**
  * Main menu selections
@@ -17,30 +23,29 @@ import { Button } from 'primereact/button';
 export enum MenuSelections {
   NO_SELECTION,
   SHOW_TOOLS,
+  ADD_TOOL,
   SHOW_BOOKINGS,
   SHOW_REPAIRS
 }
 
-/**
- * Props for BookYourDiyTools class
- */
-interface IProps { }
+const defaultMenuDisplayed:MenuSelections = MenuSelections.NO_SELECTION;
 
-/**
- * States for for BookYourDiyTools class
- */
-interface IState {
-  selectedMenuItem: MenuSelections;
-}
+interface IProps
+{}
 
 /**
  * BookYourDiyTools class
  */
-export class BookYourDiyTools extends React.Component<IProps, IState> {
+@observer export class BookYourDiyTools extends React.Component< IProps, {} > {
   private toast: any;
   private firstSelectedTool:number = 0;
   private menuItems: any;
   private mainMenu:any;
+  private callBackendAPI:any;
+
+  @observable private selectedMenuItem: MenuSelections;
+  @observable private displayAddDiytool: boolean = false;
+
 
   /**
    * constructor
@@ -50,11 +55,11 @@ export class BookYourDiyTools extends React.Component<IProps, IState> {
     // Set props
     super(props);
 
-    // Set states
-    this.state = { 
-      // Selected menu
-      selectedMenuItem: MenuSelections.NO_SELECTION,
-    };
+    // New! Needed since mobx 6
+    // https://stackoverflow.com/questions/67034998/component-not-re-rendering-when-updating-the-state-in-mobx
+    makeObservable(this);
+
+    this.selectedMenuItem = defaultMenuDisplayed;
 
     // Set menu items
     this.menuItems = [
@@ -62,11 +67,12 @@ export class BookYourDiyTools extends React.Component<IProps, IState> {
         label: 'Outils',
         items: [
           {
-            label: 'Outils', icon: 'pi pi-external-link',
-            command: () => {
-              //this.toast.show({ severity: 'success', summary: 'Description des outils', detail: 'Description des outils', life: 3000 });
-              this.setSelectedMenu(MenuSelections.SHOW_TOOLS);
-            }
+            label: 'Liste des outils', icon: 'pi pi-external-link',
+            command: () => { this.setSelectedMenu(MenuSelections.SHOW_TOOLS) }
+          },
+          {
+            label: 'Ajouter un outil', icon: 'pi pi-external-link',
+            command: () => { this.setSelectedMenu(MenuSelections.ADD_TOOL) }
           }
         ]
       },
@@ -75,7 +81,7 @@ export class BookYourDiyTools extends React.Component<IProps, IState> {
         items: [
           {
             label: 'Réservations', icon: 'pi pi-external-link',
-            command: () => { this.setSelectedMenu(MenuSelections.SHOW_BOOKINGS);  }
+            command: () => { this.setSelectedMenu(MenuSelections.SHOW_BOOKINGS)  }
           }
         ]
       },
@@ -84,7 +90,7 @@ export class BookYourDiyTools extends React.Component<IProps, IState> {
         items: [
           {
             label: 'Réparations', icon: 'pi pi-external-link',
-            command: () => { this.setSelectedMenu(MenuSelections.SHOW_REPAIRS); }
+            command: () => { this.setSelectedMenu(MenuSelections.SHOW_REPAIRS) }
           }
         ]
       }
@@ -95,14 +101,22 @@ export class BookYourDiyTools extends React.Component<IProps, IState> {
    * setSelectedMenu
    * @param e 
    */
-  setSelectedMenu = (ms: MenuSelections): void => {
-    this.setState({ selectedMenuItem:ms } );
+  private setSelectedMenu = (ms: MenuSelections): void => {
+    this.selectedMenuItem = ms;
+  }
+
+  /**
+   * setSelectedTool
+   * @param selectedTool 
+   */
+  private setSelectedTool = ( selectedTool: DiyTool ) => {
+    this.renderDiyToolsList();
   }
 
   /**
    * showMenuComponent
    */
-  showMainMenu = (): JSX.Element => {
+   private showMainMenu = (): JSX.Element => {
     return (
       <div className="main-menu">  
         <Menu 
@@ -124,7 +138,8 @@ export class BookYourDiyTools extends React.Component<IProps, IState> {
  /**
    * renderHomePage
    */
-  renderHomePage = (): JSX.Element => {
+  private renderHomePage = (): JSX.Element => {
+
     return (
       <div className='panel-home-page'>
 
@@ -134,27 +149,17 @@ export class BookYourDiyTools extends React.Component<IProps, IState> {
         { /* Main menu */ }  
         { this.showMainMenu() }
 
-        { /* Booking History panel */ }
-        <Panel header="BookYourDiyTools !">
-          <label htmlFor="label">Réservation d'outils de bricolage</label><br/>
-        </Panel>
-
       </div>
     );
   }
 
   /**
-   * setSelectedTool
-   * @param selectedTool 
+   * renderDiyToolsList
    */
-  setSelectedTool = ( selectedTool: DiyTool ) => {
-    console.log( JSON.stringify(selectedTool) );
-  }
+   private renderDiyToolsList = (): JSX.Element => {
 
-  /**
-   * renderDiyTools
-   */
-  renderDiyTools = (): JSX.Element => {
+    console.log("renderDiyToolsList");
+
     return (
       <div className='panel-diytools'>
 
@@ -174,19 +179,39 @@ export class BookYourDiyTools extends React.Component<IProps, IState> {
               firstSelectedTool= {0}
               onToolChanged= { ( selectedTool: DiyTool ) => { this.setSelectedTool( selectedTool ); } }
           />
-
-            <Button label=' + ' minLength={10} className='button-addttool'/><br/>
-            <Button label=' - ' minLength={10} className='button-addttool'/>
           </Panel>
-
       </div>
     );
   }
 
   /**
-   * renderBookingHistory
+   * renderAddDiyTool
+   * @returns 
    */
-  renderBookingHistory = (): JSX.Element => {
+  private renderAddDiyTool = (): JSX.Element => {
+    return (
+      <div className='panel-add-diytool'>
+
+        { /* Primereact style, uses CSS for display */ }
+        <PrimereactStyle/>  
+
+        { /* Main menu */ }  
+        { this.showMainMenu() }
+
+        { /* Booking History panel */ }
+          
+            { /* DiyAddDiyToolComponent component */ }
+            <DiyAddDiyToolComponent 
+              gotoDiyToolsAction={ (): JSX.Element => { return this.renderDiyToolsList(); } }
+            />
+      </div>
+    );
+  }
+
+  /**
+   * renderBookingHistoryList
+   */
+   private renderBookingHistoryList = (): JSX.Element => {
     return (
       <div className='panel-booking-history'>
 
@@ -209,9 +234,9 @@ export class BookYourDiyTools extends React.Component<IProps, IState> {
   }
 
   /**
-   * renderRepairs
+   * renderRepairsList
    */
-  renderRepairs = (): JSX.Element => {
+   private renderRepairsList = (): JSX.Element => {
     return (
       <div className='panel-booking-history'>
 
@@ -232,27 +257,29 @@ export class BookYourDiyTools extends React.Component<IProps, IState> {
       </div>
     );
   }
-
+  
   /**
    * render method
    */
-  render = (): JSX.Element => {  
-    if ( this.state.selectedMenuItem === MenuSelections.NO_SELECTION ) {
+  render (): JSX.Element {  
 
-      return this.renderHomePage();
+    console.log( "render:" , this.selectedMenuItem );
 
-    } else if ( this.state.selectedMenuItem === MenuSelections.SHOW_TOOLS ) {
-      
-      return this.renderDiyTools();
-
-    } else if ( this.state.selectedMenuItem === MenuSelections.SHOW_BOOKINGS ) {
-        
-      return this.renderBookingHistory();
-
-    } else  if ( this.state.selectedMenuItem === MenuSelections.SHOW_REPAIRS ) {
-      return this.renderRepairs();
-    }
-
-    return <React.Fragment></React.Fragment>
+    return ( <div>
+      {
+        ( this.selectedMenuItem === MenuSelections.NO_SELECTION ) ?
+            this.renderHomePage()
+        : ( this.selectedMenuItem === MenuSelections.SHOW_TOOLS ) ?      
+            this.renderDiyToolsList()
+        : ( this.selectedMenuItem === MenuSelections.ADD_TOOL ) ?      
+            this.renderAddDiyTool()            
+        : ( this.selectedMenuItem === MenuSelections.SHOW_BOOKINGS ) ?
+          this.renderBookingHistoryList()
+        : ( this.selectedMenuItem === MenuSelections.SHOW_REPAIRS ) ?
+            this.renderRepairsList()
+        : <React.Fragment></React.Fragment>
+      }
+  </div> );
   }
 }
+

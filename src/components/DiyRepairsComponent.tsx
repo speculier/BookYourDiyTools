@@ -11,38 +11,36 @@ import { Panel } from '@bit/primefaces.primereact.panel';
 import { Rating } from '@bit/primefaces.primereact.rating';
 import { InputSwitch } from 'primereact/components/inputswitch/InputSwitch';
 import { DiyRepair, DiyRepairs, DiyToolRepairInformations } from '../model/DiyRepairData';
+import { observer } from 'mobx-react';
+import { makeObservable, observable } from 'mobx';
 
 /**
  * Props for DiyRepairs class
  */
 interface IPropsDiyRepairs { }
 
-/**
- * States for DiyRepairs class
- */
-interface IStateDiyRepairs {
-    selectedDiyTool: DiyTool;
-    displayCurrentRepairs: boolean;
-    dataViewRepairHistoryCurrentRepair?: DiyToolRepairInformations;
-    dataViewRepairHistoryLayout: string;
-    dataViewRepairHistorySortKey: any;
-    dataViewRepairHistorySortOrder: any;
-    dataViewRepairHistorySortField: any;
-    onDataViewRepairHistoryOnSortChange: ( event: any ) => void;
-    onDataViewRepairHistoryItemTemplateDisplay: ( tool: any, layout: 'list' | 'grid' ) => JSX.Element;
-}
+const dataViewRepairHistoryMaxNumberPerPage: number=10;
+const defaultTemplateDisplay:string = 'list';
+const firstSelectedTool:number = 0;
+const defaultDisplayAllCurrentRepairs = false;
 
 /**
  * DiyRepairsComponent class
 */
-export class DiyRepairsComponent extends React.Component<IPropsDiyRepairs, IStateDiyRepairs> {
+@observer export class DiyRepairsComponent extends React.Component< IPropsDiyRepairs, {} > {
      
     private diyStore:DiyToolsStore = new DiyToolsStore();
-    private diyTools: DiyTools;
-    private dataViewRepairHistoryMaxNumberPerPage: number=10;
-    private defaultTemplateDisplay:string = 'list';
-    private firstSelectedTool:number = 0;
-    private defaultDisplayAllCurrentRepairs = false;
+
+    @observable private diyTools: DiyTools = { diyTools: [] };
+    @observable private selectedDiyTool: DiyTool | undefined;
+    @observable private displayCurrentRepairs: boolean = defaultDisplayAllCurrentRepairs;
+    @observable private dataViewRepairHistoryCurrentRepair?: DiyToolRepairInformations;
+    @observable private dataViewRepairHistoryLayout: string  | undefined;
+    @observable private dataViewRepairHistorySortKey: any;
+    @observable private dataViewRepairHistorySortOrder: any;
+    @observable private dataViewRepairHistorySortField: any;
+    @observable private onDataViewRepairHistoryOnSortChange: ( event: any ) => void;
+    @observable private onDataViewRepairHistoryItemTemplateDisplay: ( tool: any, layout: 'list' | 'grid' ) => JSX.Element;
 
     /**
      * constructor
@@ -53,46 +51,42 @@ export class DiyRepairsComponent extends React.Component<IPropsDiyRepairs, IStat
         // Props
         super(props);
 
+        // New! Needed since mobx 6
+        // https://stackoverflow.com/questions/67034998/component-not-re-rendering-when-updating-the-state-in-mobx
+        makeObservable(this);
+
         // Initialize Diy list
-        this.diyTools = this.diyStore.getAllTools();
+        this.diyStore.getAllDiyTools().then( (result: DiyTool[]) => {
+            this.diyTools.diyTools = result;
 
-        // States
-        this.state = { 
-            // Selected tool in the main list
-            selectedDiyTool: this.diyTools.diyTools[this.firstSelectedTool],
+            this.selectedDiyTool = this.diyTools ? this.diyTools.diyTools[firstSelectedTool] : undefined ;
+            this.dataViewRepairHistoryCurrentRepair = typeof this.selectedDiyTool === undefined ? undefined : this.diyTools.diyTools[firstSelectedTool].currentRepairInfos;
+        } );
 
-            // Default repair display
-            displayCurrentRepairs: this.defaultDisplayAllCurrentRepairs,
-
-            dataViewRepairHistoryLayout: this.defaultTemplateDisplay,
-            dataViewRepairHistorySortKey: null,
-            dataViewRepairHistorySortOrder: null,
-            dataViewRepairHistorySortField: null,
-            dataViewRepairHistoryCurrentRepair: typeof this.diyTools.diyTools[this.firstSelectedTool].currentRepairInfos === undefined ? undefined : this.diyTools.diyTools[this.firstSelectedTool].currentRepairInfos,
-            onDataViewRepairHistoryOnSortChange: this.dataViewRepairHistoryOnSortChange,
-            onDataViewRepairHistoryItemTemplateDisplay: this.dataViewRepairHistoryItemTemplateDisplay
-        };
+        this.displayCurrentRepairs = defaultDisplayAllCurrentRepairs;
+        this.dataViewRepairHistoryLayout = defaultTemplateDisplay;
+        this.dataViewRepairHistorySortKey = null
+        this.dataViewRepairHistorySortOrder = null
+        this.dataViewRepairHistorySortField = null
+        this.onDataViewRepairHistoryOnSortChange = this.dataViewRepairHistoryOnSortChange;
+        this.onDataViewRepairHistoryItemTemplateDisplay = this.dataViewRepairHistoryItemTemplateDisplay;
     }
 
     /**
      * dataViewRepairHistoryOnSortChange
      * @param event 
      */
-    dataViewRepairHistoryOnSortChange = ( event: any ) => {
+    private dataViewRepairHistoryOnSortChange = ( event: any ) => {
         const value = event.value;
 
         if ( value.indexOf('!') === 0 ) {
-            this.setState( {
-                dataViewRepairHistorySortOrder: -1,
-                dataViewRepairHistorySortField: value.substring( 1, value.length ),
-                dataViewRepairHistorySortKey: value
-            } );
+            this.dataViewRepairHistorySortOrder = -1;
+            this.dataViewRepairHistorySortField = value.substring( 1, value.length );
+            this.dataViewRepairHistorySortKey = value;
         } else {
-            this.setState( {
-                dataViewRepairHistorySortOrder: 1,
-                dataViewRepairHistorySortField: value,
-                dataViewRepairHistorySortKey: value
-            } );
+            this.dataViewRepairHistorySortOrder = 1;
+            this.dataViewRepairHistorySortField = value;
+            this.dataViewRepairHistorySortKey = value;
         }
     }
 
@@ -100,7 +94,7 @@ export class DiyRepairsComponent extends React.Component<IPropsDiyRepairs, IStat
      * renderRatingForGrid
      * @param infos 
      */
-    renderRatingForGrid = ( infos : DiyToolRepairInformations ): JSX.Element => {
+    private renderRatingForGrid = ( infos : DiyToolRepairInformations ): JSX.Element => {
 
         if ( typeof infos.repairRating !== 'undefined' ) {
             return (
@@ -117,20 +111,20 @@ export class DiyRepairsComponent extends React.Component<IPropsDiyRepairs, IStat
     * renderRepairHistoryGridItem
     * @param repairInfos 
     */
-    renderRepairHistoryGridItem = ( repairInfos: any ): JSX.Element => {
+    private renderRepairHistoryGridItem = ( repairInfos: any ): JSX.Element => {
 
-        if ( this.state.displayCurrentRepairs ) {
+        if ( this.displayCurrentRepairs ) {
             return (
                 <div style={{ padding: '.5em' }} className='tool-label'>
-                    <Panel header={ repairInfos.toolLabel } style={{ textAlign: 'center' }}>
+                    <Panel header={  repairInfos.toolLabel } style={{ textAlign: 'center' }}>
                         <div className='repair-description'>
-                            { repairInfos.repairInfos.repairDescription }
+                            { "Description : " + repairInfos.repairInfos.repairDescription }
                         </div>
                         <div className='repair-company-name'>
-                            { repairInfos.repairInfos.repairCompanyName }
+                            { "Entreprise : " + repairInfos.repairInfos.repairCompanyName }
                         </div>
                         <div className='repair-back-date'>
-                            { repairInfos.repairInfos.repairBackDate.toString() }
+                            { "Date de retour : " + repairInfos.repairInfos.repairBackDate.toString() }
                         </div>
                         <hr className='ui-widget-content' style={{ borderTop: 0 }} />
                     </Panel>
@@ -141,14 +135,14 @@ export class DiyRepairsComponent extends React.Component<IPropsDiyRepairs, IStat
                 <div style={{ padding: '.5em' }} className='tool-label'>
                     <Panel header={ repairInfos.toolLabel } style={{ textAlign: 'center' }}>
                         <div className='repair-description'>
-                            { repairInfos.repairDescription }
-                        </div>
+                            { "Description : " + repairInfos.repairDescription }
+                        </div><br/>
                         <div className='repair-company-name'>
-                            { repairInfos.repairCompanyName }
-                        </div>
+                            { "Entreprise : " +repairInfos.repairCompanyName }
+                        </div><br/>
                         <div className='repair-back-date'>
-                            { repairInfos.repairBackDate.toString() }
-                        </div>
+                            { "Date de retour : " + repairInfos.repairBackDate.toString() }
+                        </div><br/>
                         { this.renderRatingForGrid( repairInfos ) }
                         <hr className='ui-widget-content' style={{ borderTop: 0 }} />
                     </Panel>
@@ -161,7 +155,7 @@ export class DiyRepairsComponent extends React.Component<IPropsDiyRepairs, IStat
      * renderRatingForList
      * @param infos 
      */
-    renderRatingForList = ( infos : DiyToolRepairInformations ): JSX.Element => {
+    private renderRatingForList = ( infos : DiyToolRepairInformations ): JSX.Element => {
 
         if ( typeof infos.repairRating !== 'undefined' ) {
             return (
@@ -181,9 +175,11 @@ export class DiyRepairsComponent extends React.Component<IPropsDiyRepairs, IStat
     * renderRepairHistoryListItem
     * @param repairInfos 
     */
-    renderRepairHistoryListItem = ( repairInfos : any ): JSX.Element => {
+  private renderRepairHistoryListItem = ( repairInfos : any ): JSX.Element => {
 
-        if ( this.state.displayCurrentRepairs === true && typeof (repairInfos.repairInfos) !== 'undefined' ) {
+    console.log("repairInfos : " + JSON.stringify(repairInfos) );
+
+        if ( this.displayCurrentRepairs === true && typeof (repairInfos.repairInfos) !== 'undefined' ) {
             return (
                 <div className='repairs-list' style={ { padding: '2em', borderBottom: '1px solid #d9d9d9', display: 'flex' } }>
                     <div className='tool-label' style={{ width: '25%' }}>
@@ -208,6 +204,8 @@ export class DiyRepairsComponent extends React.Component<IPropsDiyRepairs, IStat
                 </div>
             );
         } else if ( typeof (repairInfos) !== 'undefined' ) {
+
+            console.log("OKKKK     repairInfos.repairInfos : " + JSON.stringify(repairInfos.repairDescription) );
             return (
                 <div className='repairs-list' style={{ padding: '2em', borderBottom: '1px solid #d9d9d9', display: 'flex' }} >
                     <div className='tool-label' style={{ width: '25%' }}>
@@ -236,9 +234,9 @@ export class DiyRepairsComponent extends React.Component<IPropsDiyRepairs, IStat
     * @param repairInfos 
     * @param layout 
     */
-    dataViewRepairHistoryItemTemplateDisplay = ( repairInfos: any, layout: 'list' | 'grid' ): JSX.Element => {
+    private dataViewRepairHistoryItemTemplateDisplay = ( repairInfos: any, layout: 'list' | 'grid' ): JSX.Element => {
 
-        if ( repairInfos ) {
+        if ( repairInfos && typeof (repairInfos.repairInfos) !== 'undefined' && repairInfos.repairInfos !== null ) {
             if ( layout === 'list' ) return this.renderRepairHistoryListItem( repairInfos );
             else if ( layout === 'grid' ) return this.renderRepairHistoryGridItem( repairInfos );
         }
@@ -249,23 +247,23 @@ export class DiyRepairsComponent extends React.Component<IPropsDiyRepairs, IStat
     /**
      * renderRepairHistoryHeader
      */
-    renderRepairHistoryHeader = () => {
+    private renderRepairHistoryHeader = () => {
 
         let sortOptions;
 
-        if (  this.state.displayCurrentRepairs === true ) {
+        if (  this.displayCurrentRepairs === true ) {
             sortOptions = [
-                { label: 'Réparation', value: 'repairDescription' },
                 { label: 'Outil', value: 'toolLabel' },
+                { label: 'Réparation', value: 'repairDescription' },
                 { label: 'Entreprise', value: 'repairCompanyName' },
                 { label: 'Date de retour', value: 'repairBackDate' },
             ];
         } else {
             sortOptions = [
-                { label: 'Réparation', value: 'repairDescription' },
                 { label: 'Outil', value: 'toolLabel' },
-                { label: 'Entreprise', value: 'bookerPhoneNumber' },
-                { label: 'Date de retour', value: 'repairCompanyName' },
+                { label: 'Réparation', value: 'repairDescription' },
+                { label: 'Entreprise', value: 'repairCompanyName' },
+                { label: 'Date de retour', value: 'repairBackDate' },
                 { label: 'Note de la réparation', value: 'repairRating' }
             ];
         }
@@ -275,15 +273,15 @@ export class DiyRepairsComponent extends React.Component<IPropsDiyRepairs, IStat
                 <div className='repairs-dropdown-sort-type' style={{ textAlign: 'left', float: 'left' }}>
                     <Dropdown
                         options={ sortOptions }
-                        value={ this.state.dataViewRepairHistorySortKey }
+                        value={ this.dataViewRepairHistorySortKey }
                         placeholder='Trier par'
                         onChange={ this.dataViewRepairHistoryOnSortChange }
                     />
                 </div>
                 <div className='repairs-view-type' style={{ textAlign: 'right' }}>
                     <DataViewLayoutOptions
-                        layout={ this.state.dataViewRepairHistoryLayout }
-                        onChange={ e => this.setState( { dataViewRepairHistoryLayout: e.value } ) }
+                        layout={ this.dataViewRepairHistoryLayout }
+                        onChange={ e => this.dataViewRepairHistoryLayout = e.value }
                     />
                 </div>
             </div>
@@ -293,13 +291,13 @@ export class DiyRepairsComponent extends React.Component<IPropsDiyRepairs, IStat
     /**
      * renderRepairsTypeOfDisplay
      */
-    renderRepairsTypeOfDisplay = () : JSX.Element => {
+    private renderRepairsTypeOfDisplay = () : JSX.Element => {
         return (
             <div className="repairs-switch-type-of-display">
                 <label>Afficher les réparations en cours:</label><br/>
                 <InputSwitch 
-                    checked={ this.state.displayCurrentRepairs } 
-                    onChange={ (e) => this.setState( { displayCurrentRepairs: e.value } ) } 
+                    checked={ this.displayCurrentRepairs } 
+                    onChange={ (e) => this.displayCurrentRepairs = e.value } 
                 /><br/>
             </div>
         );
@@ -308,89 +306,103 @@ export class DiyRepairsComponent extends React.Component<IPropsDiyRepairs, IStat
     /**
      * renderCurrentRepairs
      */
-    renderCurrentRepairs = (dataViewRepairHistoryHeader: any): JSX.Element => { 
+    private renderCurrentRepairs = (dataViewRepairHistoryHeader: any): JSX.Element => { 
  
-        let allRepairs:DiyRepairs= { repairs: [] };
+        if ( this.diyTools ) {
+            let allRepairs:DiyRepairs= { repairs: [] };
 
-        // Concatenate all repairs of each tool in one array
-        this.diyTools.diyTools.forEach(element => {
-            let currentRepairs:DiyRepair = {
-                repairInfos: element.currentRepairInfos as DiyToolRepairInformations,
-                generalInfos: element.generalInfos,
-                toolLabel: element.label
-            }; 
+            // Concatenate all repairs of each tool in one array
+            this.diyTools.diyTools.forEach(element => {
+                let currentRepairs:DiyRepair = {
+                    repairInfos: element.currentRepairInfos as DiyToolRepairInformations,
+                    generalInfos: element.generalInfos,
+                    toolLabel: element.label
+                }; 
 
-            allRepairs.repairs.push(currentRepairs);
-        });
+                allRepairs.repairs.push(currentRepairs);
+            });
 
-        return (
-            <div className='repairs'>
+            return (
+                <div className='repairs'>
 
-                { /* Display all bookings or not */ }
-                { this.renderRepairsTypeOfDisplay() }
+                    { /* Display all bookings or not */ }
+                    { this.renderRepairsTypeOfDisplay() }
 
-                { /* Repair list per tools */ }   
-                <label>Liste de toutes les réparations en cours :</label><br/>       
-                <DataView 
-                    value={ allRepairs.repairs } 
-                    layout={ this.state.dataViewRepairHistoryLayout } 
-                    header={ dataViewRepairHistoryHeader }
-                    itemTemplate={ this.dataViewRepairHistoryItemTemplateDisplay } 
-                    rows= { this.dataViewRepairHistoryMaxNumberPerPage }
-                    sortOrder={ this.state.dataViewRepairHistorySortOrder }
-                    sortField={ this.state.dataViewRepairHistorySortField }
-                    paginator
-                />
-            </div>
-        );
+                    { /* Repair list per tools */ }   
+                    <label>Liste de toutes les réparations en cours :</label><br/>       
+                    <DataView 
+                        value={ allRepairs.repairs } 
+                        layout={ this.dataViewRepairHistoryLayout } 
+                        header={ dataViewRepairHistoryHeader }
+                        itemTemplate={ this.dataViewRepairHistoryItemTemplateDisplay } 
+                        rows= { dataViewRepairHistoryMaxNumberPerPage }
+                        sortOrder={ this.dataViewRepairHistorySortOrder }
+                        sortField={ this.dataViewRepairHistorySortField }
+                        paginator
+                    />
+                </div>
+            );
+        } else {
+            return <React.Fragment></React.Fragment>
+        }   
     }
 
     /**
      * renderRepairsPerTools
      */
-    renderRepairsPerTools = (dataViewRepairHistoryHeader: any): JSX.Element => { 
+    private renderRepairsPerTools = (dataViewRepairHistoryHeader: any): JSX.Element => { 
  
-        return (
-            <div className='repairs'>
+ //       console.log("repairHistory: ", JSON.stringify(this.selectedDiyTool?.repairHistory));
+        // console.log(this.selectedDiyTool?.repairHistory);
 
-                { /* Display all repairs or not */ }
-                { this.renderRepairsTypeOfDisplay() }
+        if ( this.selectedDiyTool ) {
+            return (
+                <div className='repairs'>
 
-                { /* DiyToolsComponent list */ }
-                <DiyToolsComponent
-                    showInformations={false}
-                    canChangeListContainer={false}
-                    firstSelectedTool= { this.firstSelectedTool}
-                    onToolChanged= { ( selectedTool: DiyTool ) => { this.setState( { selectedDiyTool: selectedTool } ); } }
-                />
-                               
-                { /* Repair list per tools */ }
-                <label>Liste des réparations passées pour cet outil :</label><br/>
-                <DataView 
-                    value={ this.state.selectedDiyTool.repairHistory } 
-                    layout={ this.state.dataViewRepairHistoryLayout } 
-                    header={ dataViewRepairHistoryHeader }
-                    itemTemplate={ this.dataViewRepairHistoryItemTemplateDisplay } 
-                    rows= { this.dataViewRepairHistoryMaxNumberPerPage }
-                    sortOrder={ this.state.dataViewRepairHistorySortOrder }
-                    sortField={ this.state.dataViewRepairHistorySortField }
-                    paginator
-                />
-            </div>
-        );
+                    { /* Display all repairs or not */ }
+                    { this.renderRepairsTypeOfDisplay() }
+
+                    { /* DiyToolsComponent list */ }
+                    <DiyToolsComponent
+                        showInformations={false}
+                        canChangeListContainer={false}
+                        firstSelectedTool= { firstSelectedTool}
+                        onToolChanged= { ( selectedTool: DiyTool ) => { this.selectedDiyTool = selectedTool; } }
+                    />
+                                
+                    { /* console.log("222222 :" ,JSON.stringify(this.selectedDiyTool?.repairHistory))*/ /* Repair list per tools */ }
+                    <label>Liste des réparations passées pour cet outil :</label><br/>
+                    <DataView 
+
+                        value={ this.selectedDiyTool.repairHistory } 
+                        layout={ this.dataViewRepairHistoryLayout } 
+                        header={ dataViewRepairHistoryHeader }
+                        itemTemplate={ this.dataViewRepairHistoryItemTemplateDisplay } 
+                        rows= { dataViewRepairHistoryMaxNumberPerPage }
+                        sortOrder={ this.dataViewRepairHistorySortOrder }
+                        sortField={ this.dataViewRepairHistorySortField }
+                        paginator
+                    />
+                </div>
+            );
+        } else {
+            return <React.Fragment></React.Fragment>
+        }   
     }
 
     /**
      * render method
      */
-    render = (): JSX.Element => { 
-        const dataViewRepairHistoryHeader = this.renderRepairHistoryHeader();
+    public render (): JSX.Element { 
 
-        if ( this.state.displayCurrentRepairs === true ) {
-            return this.renderCurrentRepairs(dataViewRepairHistoryHeader);
-        } else {
-            return this.renderRepairsPerTools(dataViewRepairHistoryHeader);
-        }  
-     }
+        return ( <div>
+            {
+                this.displayCurrentRepairs 
+                ? this.renderCurrentRepairs(this.renderRepairHistoryHeader()) 
+                : this.renderRepairsPerTools(this.renderRepairHistoryHeader())
+            }
+        </div>
+         );
+    }
  }
  
